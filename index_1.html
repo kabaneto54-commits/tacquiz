@@ -1,0 +1,2342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICM/GTO プリフロップ&ポストフロップ トレーナー</title>
+<style>
+:root{
+  color-scheme: light;
+  --surface-1:      #fcfcfb;
+  --surface-2:      #ffffff;
+  --page:           #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --muted:          #898781;
+  --gridline:       #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border:         rgba(11,11,11,0.10);
+  --border-strong:  rgba(11,11,11,0.18);
+  --series-1:       #2a78d6; /* blue */
+  --series-2:       #eb6834; /* orange */
+  --series-7:       #4a3aa7; /* violet */
+  --good:           #0ca30c;
+  --good-bg:        rgba(12,163,12,0.12);
+  --warning:        #fab219;
+  --warning-bg:     rgba(250,178,25,0.16);
+  --serious:        #ec835a;
+  --critical:       #d03b3b;
+  --critical-bg:    rgba(208,59,59,0.10);
+  --seq-100: #cde2fb; --seq-150: #b7d3f6; --seq-200: #9ec5f4; --seq-250: #86b6ef;
+  --seq-300: #6da7ec; --seq-350: #5598e7; --seq-400: #3987e5; --seq-450: #2a78d6;
+  --seq-500: #256abf; --seq-550: #1c5cab; --seq-600: #184f95; --seq-650: #104281;
+  --seq-700: #0d366b;
+  --card-red: #c23b3b;
+  --card-blk: #1c1c1c;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(11,11,11,0.06), 0 4px 16px rgba(11,11,11,0.06);
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-1:      #1a1a19;
+  --surface-2:      #212120;
+  --page:           #0d0d0d;
+  --text-primary:   #ffffff;
+  --text-secondary: #c3c2b7;
+  --muted:          #898781;
+  --gridline:       #2c2c2a;
+  --baseline:       #383835;
+  --border:         rgba(255,255,255,0.10);
+  --border-strong:  rgba(255,255,255,0.18);
+  --series-1:       #3987e5;
+  --series-2:       #d95926;
+  --series-7:       #9085e9;
+  --good:           #0ca30c;
+  --good-bg:        rgba(12,163,12,0.18);
+  --warning:        #fab219;
+  --warning-bg:     rgba(250,178,25,0.20);
+  --serious:        #ec835a;
+  --critical:       #e66767;
+  --critical-bg:    rgba(230,103,103,0.16);
+  --card-red: #e07a7a;
+  --card-blk: #e8e8e6;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]):not([data-theme="dark"]){
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --surface-2:      #212120;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted:          #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --border-strong:  rgba(255,255,255,0.18);
+    --series-1:       #3987e5;
+    --series-2:       #d95926;
+    --series-7:       #9085e9;
+    --good-bg:        rgba(12,163,12,0.18);
+    --warning-bg:     rgba(250,178,25,0.20);
+    --critical:       #e66767;
+    --critical-bg:    rgba(230,103,103,0.16);
+    --card-red: #e07a7a;
+    --card-blk: #e8e8e6;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--page);
+  color:var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  line-height:1.6;
+  min-height:100vh;
+}
+.app{max-width:1080px;margin:0 auto;padding:20px 16px 64px;}
+header.top{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  margin-bottom:18px;flex-wrap:wrap;
+}
+header.top h1{font-size:1.35rem;margin:0 0 4px;letter-spacing:-0.01em;}
+header.top p{margin:0;color:var(--text-secondary);font-size:0.92rem;}
+.theme-toggle{
+  border:1px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);
+  border-radius:999px;padding:8px 14px;font-size:0.85rem;cursor:pointer;white-space:nowrap;
+}
+.theme-toggle:hover{background:var(--gridline);}
+
+nav.tabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
+  border-bottom:1px solid var(--gridline);padding-bottom:0;
+}
+nav.tabs button{
+  appearance:none;border:none;background:transparent;color:var(--text-secondary);
+  padding:10px 14px;font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+nav.tabs button:hover{color:var(--text-primary);background:var(--gridline);}
+nav.tabs button.active{color:var(--series-1);border-bottom-color:var(--series-1);}
+
+.panel{display:none;}
+.panel.active{display:block;animation:fade .15s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
+
+.card{
+  background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.card h2{margin:0 0 12px;font-size:1.05rem;}
+.card h3{margin:0 0 8px;font-size:0.95rem;color:var(--text-secondary);font-weight:700;}
+.grid-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
+.field label{display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:5px;font-weight:600;}
+.field select, .field input[type=number], .field input[type=text]{
+  width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--text-primary);font-size:0.9rem;
+}
+.field .hint{font-size:0.75rem;color:var(--muted);margin-top:4px;}
+.pill-group{display:flex;gap:6px;flex-wrap:wrap;}
+.pill-group button{
+  border:1px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);
+  border-radius:999px;padding:6px 12px;font-size:0.82rem;cursor:pointer;
+}
+.pill-group button.selected{background:var(--series-1);border-color:var(--series-1);color:#fff;}
+.btn{
+  appearance:none;border:none;border-radius:9px;padding:11px 18px;font-size:0.92rem;font-weight:700;
+  cursor:pointer;color:#fff;background:var(--series-1);
+}
+.btn:hover{filter:brightness(1.08);}
+.btn.secondary{background:var(--surface-2);color:var(--text-primary);border:1px solid var(--border-strong);}
+.btn.good{background:var(--good);}
+.btn.warn{background:var(--warning);color:#1a1a19;}
+.btn.critical{background:var(--critical);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+.hand-key-display{
+  font-size:1.6rem;font-weight:800;letter-spacing:0.02em;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+  font-size:0.8rem;font-weight:700;
+}
+.badge.good{background:var(--good-bg);color:var(--good);}
+.badge.warn{background:var(--warning-bg);color:#8a5c00;}
+:root[data-theme="dark"] .badge.warn{color:var(--warning);}
+.badge.critical{background:var(--critical-bg);color:var(--critical);}
+.badge.neutral{background:var(--gridline);color:var(--text-secondary);}
+
+.result-box{border-radius:10px;padding:16px;margin-top:14px;border:1px solid var(--border);}
+.result-headline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.result-headline .action-big{font-size:1.3rem;font-weight:800;}
+.reasons{margin:10px 0 0;padding-left:0;list-style:none;}
+.reasons li{position:relative;padding-left:18px;margin-bottom:6px;color:var(--text-secondary);font-size:0.88rem;}
+.reasons li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--series-1);}
+.meta-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:0.82rem;color:var(--muted);}
+.meta-row b{color:var(--text-primary);}
+
+/* playing cards */
+.cards-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.pcard{
+  width:52px;height:72px;border-radius:8px;background:var(--surface-2);
+  border:1px solid var(--border-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.15rem;box-shadow:var(--shadow);
+}
+.pcard.red{color:var(--card-red);}
+.pcard.blk{color:var(--card-blk);}
+.pcard.back{background:linear-gradient(135deg, var(--series-1), var(--series-7));color:transparent;}
+.pcard.sm{width:40px;height:56px;font-size:0.95rem;}
+
+/* range grid */
+.range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;max-width:640px;margin:0 auto;}
+.range-cell{
+  aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+  font-size:0.68rem;font-weight:700;border-radius:3px;cursor:default;color:#fff;
+  position:relative;
+}
+.range-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:0.8rem;color:var(--text-secondary);}
+.legend-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+.score-strip{display:flex;gap:20px;flex-wrap:wrap;font-size:0.85rem;color:var(--text-secondary);margin-bottom:10px;}
+.score-strip b{color:var(--text-primary);font-size:1.05rem;}
+
+.progress-dots{display:flex;gap:6px;margin:6px 0 14px;}
+.progress-dots span{width:26px;height:6px;border-radius:3px;background:var(--gridline);}
+.progress-dots span.done{background:var(--good);}
+.progress-dots span.current{background:var(--series-1);}
+
+.texture-badge{padding:4px 10px;border-radius:999px;font-size:0.78rem;font-weight:700;}
+.texture-dry{background:var(--good-bg);color:var(--good);}
+.texture-mid{background:var(--warning-bg);color:#8a5c00;}
+:root[data-theme="dark"] .texture-mid{color:var(--warning);}
+.texture-wet{background:var(--critical-bg);color:var(--critical);}
+
+.help-section{margin-bottom:18px;}
+.help-section h3{margin-bottom:6px;}
+.help-section p, .help-section li{color:var(--text-secondary);font-size:0.9rem;}
+footer.disclaimer{
+  margin-top:24px;padding:14px 16px;border-radius:10px;background:var(--gridline);
+  font-size:0.78rem;color:var(--text-secondary);
+}
+.close-note{background:var(--warning-bg);color:#8a5c00;border-radius:8px;padding:8px 12px;font-size:0.8rem;margin-top:8px;}
+:root[data-theme="dark"] .close-note{color:var(--warning);}
+
+@media (max-width:640px){
+  .range-grid{max-width:100%;}
+  .range-cell{font-size:0.55rem;}
+  .pcard{width:44px;height:62px;font-size:1rem;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>ICM/GTO プリフロップ&ポストフロップ トレーナー</h1>
+      <p>簡易ルールベースのICM調整＋ヒューリスティックなポストフロップ判断で、トーナメントのアクション判断力を鍛える練習サイトです。</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" type="button">🌓 表示切替</button>
+  </header>
+
+  <nav class="tabs" id="tabNav">
+    <button data-tab="diagnose" class="active">診断シミュレーター</button>
+    <button data-tab="preflopquiz">プリフロップ練習</button>
+    <button data-tab="rangechart">レンジ表</button>
+    <button data-tab="postflop">ポストフロップ練習</button>
+    <button data-tab="play">実践ハンド練習</button>
+    <button data-tab="help">使い方・注意点</button>
+  </nav>
+
+  <!-- ================= TAB 1: DIAGNOSE ================= -->
+  <section class="panel active" id="panel-diagnose"></section>
+
+  <!-- ================= TAB 2: PREFLOP QUIZ ================= -->
+  <section class="panel" id="panel-preflopquiz"></section>
+
+  <!-- ================= TAB 3: RANGE CHART ================= -->
+  <section class="panel" id="panel-rangechart"></section>
+
+  <!-- ================= TAB 4: POSTFLOP TRAINER ================= -->
+  <section class="panel" id="panel-postflop"></section>
+
+  <!-- ================= TAB 5: FULL HAND PRACTICE ================= -->
+  <section class="panel" id="panel-play"></section>
+
+  <!-- ================= TAB 6: HELP ================= -->
+  <section class="panel" id="panel-help"></section>
+
+</div>
+
+<script id="logic-script">
+/* ============================================================
+   Poker ICM/GTO Trainer - Core Logic (pure functions, no DOM)
+   ============================================================ */
+
+/* ---------- 1. Hand strength engine (Chen formula based) ---------- */
+
+const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+const RANK_LABEL = {T:'10'};
+
+function rankScoreChen(r){
+  const map = {A:10,K:8,Q:7,J:6,T:5};
+  if(map[r]!==undefined) return map[r];
+  return parseInt(r,10)/2;
+}
+
+// Bill Chen point-count formula (well known public heuristic).
+// Returns a raw score used only to rank hands relative to each other.
+function chenScore(hi, lo, suited){
+  const hiIdx = RANKS.indexOf(hi), loIdx = RANKS.indexOf(lo);
+  if(hiIdx === loIdx){
+    let s = rankScoreChen(hi) * 2;
+    if(s < 5) s = 5;
+    return s;
+  }
+  let score = rankScoreChen(hi);
+  if(suited) score += 2;
+  const gap = hiIdx - loIdx - 1;
+  let gapPenalty;
+  if(gap <= 0) gapPenalty = 0;
+  else if(gap === 1) gapPenalty = 1;
+  else if(gap === 2) gapPenalty = 2;
+  else if(gap === 3) gapPenalty = 4;
+  else gapPenalty = 5;
+  score -= gapPenalty;
+  const qIdx = RANKS.indexOf('Q');
+  if((gap === 0 || gap === 1) && hiIdx < qIdx) score += 1;
+  return score;
+}
+
+// Build the full 169-hand table with combo counts, chen score, a
+// deterministic tiebreak (for stable, fine-grained ordering) and the
+// cumulative "percentile" (0 = strongest, 100 = weakest) by combo weight.
+function buildHandTable(){
+  const hands = [];
+  for(let i = 0; i < 13; i++){
+    const r = RANKS[i];
+    hands.push({key: r+r, hi:r, lo:r, suited:false, pair:true, combos:6});
+  }
+  for(let i = 12; i >= 0; i--){
+    for(let j = i - 1; j >= 0; j--){
+      const hi = RANKS[i], lo = RANKS[j];
+      hands.push({key: hi+lo+'s', hi, lo, suited:true, pair:false, combos:4});
+      hands.push({key: hi+lo+'o', hi, lo, suited:false, pair:false, combos:12});
+    }
+  }
+  for(const h of hands){
+    h.chen = chenScore(h.hi, h.lo, h.suited);
+    // tiebreak: keeps ordering sensible inside a chen bucket without
+    // altering which bucket a hand belongs to (small epsilon only).
+    const hiV = RANKS.indexOf(h.hi), loV = RANKS.indexOf(h.lo);
+    let tb = hiV * 0.02 + loV * 0.01;
+    if(h.suited) tb += 0.015;
+    if(h.pair) tb += 0.05;
+    const gap = h.pair ? 0 : (hiV - loV - 1);
+    tb -= gap * 0.004;
+    h.tiebreak = tb;
+    h.power = h.chen + h.tiebreak;
+  }
+  hands.sort((a,b) => b.power - a.power);
+  const total = hands.reduce((s,h) => s + h.combos, 0);
+  let cum = 0;
+  const byKey = {};
+  for(const h of hands){
+    const startPct = (cum / total) * 100;
+    cum += h.combos;
+    const endPct = (cum / total) * 100;
+    h.percentile = (startPct + endPct) / 2; // "you need to be in the top X% to include this hand"
+    h.topPct = endPct; // cumulative combo % including this hand and everything stronger
+    byKey[h.key] = h;
+  }
+  return {list: hands, byKey, total};
+}
+
+const HAND_TABLE = buildHandTable();
+
+function handInfo(key){
+  return HAND_TABLE.byKey[key];
+}
+
+// Given two concrete cards e.g. {rank:'A',suit:'s'},{rank:'K',suit:'h'}
+// return the canonical 169-hand key, e.g. "AKo".
+function canonicalKeyFromCards(c1, c2){
+  const i1 = RANKS.indexOf(c1.rank), i2 = RANKS.indexOf(c2.rank);
+  let hi, lo;
+  if(i1 === i2){ return c1.rank + c2.rank; }
+  if(i1 > i2){ hi = c1; lo = c2; } else { hi = c2; lo = c1; }
+  const suited = c1.suit === c2.suit;
+  return hi.rank + lo.rank + (suited ? 's' : 'o');
+}
+
+/* ---------- 1b. Hand sampling for practice modes ----------
+   Dealing hands at their true combo frequency is "realistic" but, since
+   most hands are trash, it makes the vast majority of practice reps a
+   trivial fold (measured: ~76% fold rate with straight frequency-weighted
+   deals across random scenarios). For training we default to a "balanced"
+   sampler that still deals weak hands sometimes (so folding is practiced
+   too) but oversamples the playable/borderline zone where the real
+   decision-making happens. Measured with 30k-trial simulation: this drops
+   the fold rate to ~46%, a much more useful mix. */
+function randomHandKeyRealistic(){
+  const total = HAND_TABLE.total;
+  let r = Math.random() * total;
+  for(const h of HAND_TABLE.list){
+    r -= h.combos;
+    if(r <= 0) return h.key;
+  }
+  return HAND_TABLE.list[0].key;
+}
+
+const BALANCED_POOL = HAND_TABLE.list.filter(h => h.topPct <= 40);
+function randomHandKeyBalanced(){
+  if(Math.random() < 0.9){
+    return BALANCED_POOL[Math.floor(Math.random() * BALANCED_POOL.length)].key;
+  }
+  return randomHandKeyRealistic();
+}
+
+function randomHandKey(mode){
+  return mode === 'realistic' ? randomHandKeyRealistic() : randomHandKeyBalanced();
+}
+
+/* ---------- 2. Position / range threshold model ---------- */
+
+const POSITIONS_6MAX = ['UTG','MP','HJ','CO','BTN','SB','BB'];
+
+// Postflop action order is NOT the same as preflop order: action always
+// starts with the first active player after the button, i.e. SB, then BB,
+// then UTG..BTN (BTN is always last / "in position").
+const POSTFLOP_ORDER = ['SB','BB','UTG','MP','HJ','CO','BTN'];
+
+function isInPositionPostflop(heroPos, villainPos){
+  return POSTFLOP_ORDER.indexOf(heroPos) > POSTFLOP_ORDER.indexOf(villainPos);
+}
+
+// Positions that could plausibly already be an "opener" hero is now facing,
+// restricted to seats that act before `heroPos` preflop (a player can only
+// face a raise from someone who acted earlier in the hand). Preflop acting
+// order is UTG..BTN, SB, BB (BB always acts last, so it never "opens" a pot
+// someone else has to face first-hand).
+function earlierOpenerPositions(heroPos){
+  const idx = POSITIONS_6MAX.indexOf(heroPos); // BB is last (index 6), so this
+  return POSITIONS_6MAX.slice(0, idx < 0 ? 0 : idx); // naturally includes SB for BB
+}
+
+// The mirror image: seats that act AFTER heroPos preflop, i.e. who could
+// have 3-bet hero's own open.
+function laterPositions(heroPos){
+  const idx = POSITIONS_6MAX.indexOf(heroPos);
+  return idx < 0 ? [] : POSITIONS_6MAX.slice(idx + 1);
+}
+
+// Baseline open-raise (RFI) percentages at "normal" mid/deep stack (40bb+),
+// approximating well-known 6-max reference ranges. These are intentionally
+// simplified training targets, not solver output.
+const BASE_OPEN_PCT = {
+  UTG: 15, MP: 18, HJ: 22, CO: 28, BTN: 46, SB: 38
+};
+
+function openThresholdPct(position){
+  return BASE_OPEN_PCT[position] ?? 25;
+}
+
+// Facing an open from `raiserPos`, hero is at `heroPos`.
+// In-position callers can profitably continue wider than out-of-position ones.
+// BB gets a pot-odds bonus (already has a bb invested, closing preflop action).
+function callThresholdPct(raiserPos, heroPos, inPosition){
+  const raiserPct = openThresholdPct(raiserPos);
+  let posFactor;
+  if(heroPos === 'BB') posFactor = 0.85;
+  else if(inPosition) posFactor = 1.0;
+  else posFactor = 0.55;
+  return Math.max(4, raiserPct * posFactor);
+}
+
+// Value-oriented 3-bet threshold (top of range for a clean training signal).
+function threeBetThresholdPct(raiserPos, heroPos, inPosition){
+  const raiserPct = openThresholdPct(raiserPos);
+  let posFactor;
+  if(heroPos === 'BB') posFactor = 0.18;
+  else if(inPosition) posFactor = 0.25;
+  else posFactor = 0.14;
+  return Math.max(2.5, raiserPct * posFactor);
+}
+
+// Push/fold shove threshold as effective stack (in bb) shrinks.
+function shoveThresholdPct(position, stackBB){
+  const base = openThresholdPct(position === 'SB' ? 'SB' : position);
+  const bb = Math.max(4, Math.min(25, stackBB));
+  const widen = Math.pow(20 / bb, 0.8);
+  return Math.min(100, base * widen);
+}
+
+// Calling off vs an all-in: needs a real equity edge, calibrated off how
+// wide the shover's own range likely is.
+function callVsShoveThresholdPct(shoverPct){
+  return Math.max(6, shoverPct * 0.45);
+}
+
+/* ---------- 3. ICM adjustment layer ---------- */
+
+const ICM_SITUATIONS = {
+  normal:   {label: '通常（チップEV重視・ICM影響小）', pressure: 0},
+  bubble:   {label: 'マネーバブル（あと1人で入賞確定）', pressure: 2.2},
+  postitm:  {label: '入賞確定後・次のペイジャンプ間近', pressure: 1.5},
+  finaltbl: {label: '最終テーブル（ICM影響大）', pressure: 2.6}
+};
+
+const RELATIVE_STACK = {
+  big:     {label: 'トップスタック（他より多い）'},
+  average: {label: '平均的なスタック'},
+  short:   {label: 'ショート（他より少ない）'}
+};
+
+// actionRole: 'aggress' (opening / shoving as the aggressor) or
+//             'risk'    (calling / 3bet-calling / calling an all-in)
+// Returns an adjusted threshold percentage (smaller % = tighter range).
+function icmAdjustPct(baseThresholdPct, {situation, relativeStack, actionRole}){
+  const sit = ICM_SITUATIONS[situation] || ICM_SITUATIONS.normal;
+  const pressure = sit.pressure;
+  if(pressure === 0) return baseThresholdPct;
+
+  let factor = 1;
+  if(actionRole === 'risk'){
+    const riskWeight = {big: 0.045, average: 0.16, short: 0.055}[relativeStack] ?? 0.1;
+    factor = 1 - pressure * riskWeight;
+  } else { // aggress
+    const aggWeight = {big: 0.06, average: -0.045, short: 0.035}[relativeStack] ?? 0;
+    factor = 1 + pressure * aggWeight;
+  }
+  factor = Math.max(0.25, Math.min(1.6, factor));
+  const adjusted = baseThresholdPct * factor;
+  return Math.max(1.5, Math.min(100, adjusted));
+}
+
+/* ---------- 4. Master preflop recommendation ---------- */
+
+// scenario = {
+//   handKey, position, facing: 'open'|'vsopen'|'vs3bet',
+//   raiserPosition (if facing !== 'open'),
+//   stackBB, situation, relativeStack
+// }
+function recommendPreflop(scenario){
+  const {handKey, position, facing, raiserPosition, stackBB, situation, relativeStack} = scenario;
+  const hand = handInfo(handKey);
+  const isShort = stackBB <= 20;
+  const notes = [];
+  let baseThresholds = {}; // action -> pct
+  let order = []; // list of {action,label,thresholdPct,role}
+
+  if(facing === 'open'){
+    if(isShort){
+      const shoveBase = shoveThresholdPct(position, stackBB);
+      const shoveAdj = icmAdjustPct(shoveBase, {situation, relativeStack, actionRole:'aggress'});
+      order = [
+        {action:'push', label:'オールインプッシュ', thresholdPct: shoveAdj}
+      ];
+      notes.push(`実効スタックが${stackBB}BBと浅いため、レイズしてポストフロップに進むより「プッシュ/フォールド」の枠組みで判断します。`);
+    } else {
+      const openBase = openThresholdPct(position);
+      const openAdj = icmAdjustPct(openBase, {situation, relativeStack, actionRole:'aggress'});
+      order = [
+        {action:'raise', label:'オープンレイズ', thresholdPct: openAdj}
+      ];
+    }
+  } else if(facing === 'vsopen' || facing === 'vs3bet'){
+    // Positional advantage for postflop play is determined by seating order
+    // AFTER the flop (SB,BB,UTG..BTN), not the preflop acting order.
+    const inPosition = isInPositionPostflop(position, raiserPosition);
+    if(isShort){
+      const raiserOpenPct = openThresholdPct(raiserPosition);
+      const callShoveBase = callVsShoveThresholdPct(raiserOpenPct);
+      const callShoveAdj = icmAdjustPct(callShoveBase, {situation, relativeStack, actionRole:'risk'});
+      order = [
+        {action:'call', label:'コール（実質オールイン）', thresholdPct: callShoveAdj}
+      ];
+      notes.push(`実効スタックが浅いため、コールした場合ほぼオールインになる前提でエクイティ基準の判断をします。`);
+    } else {
+      const threeBetBase = threeBetThresholdPct(raiserPosition, position, inPosition);
+      const threeBetAdj = icmAdjustPct(threeBetBase, {situation, relativeStack, actionRole:'aggress'});
+      const callBase = callThresholdPct(raiserPosition, position, inPosition);
+      const callAdj = icmAdjustPct(callBase, {situation, relativeStack, actionRole:'risk'});
+      order = [
+        {action:'3bet', label: facing === 'vs3bet' ? '4ベット' : '3ベット', thresholdPct: threeBetAdj},
+        {action:'call', label:'コール', thresholdPct: Math.max(callAdj, threeBetAdj)}
+      ];
+    }
+  }
+
+  // Walk the ordered actions (strongest requirement first) and pick the
+  // first one the hand qualifies for.
+  let chosen = null;
+  for(const opt of order){
+    if(hand.topPct <= opt.thresholdPct){ chosen = opt; break; }
+  }
+  if(!chosen){
+    chosen = {action:'fold', label:'フォールド', thresholdPct: order.length ? order[order.length-1].thresholdPct : 0};
+  }
+
+  // "close decision" band: within ~12% relative of the threshold boundary
+  const nearestThreshold = order.length ? order[order.length-1].thresholdPct : 0;
+  const isClose = order.some(opt => Math.abs(hand.topPct - opt.thresholdPct) <= Math.max(1.2, opt.thresholdPct * 0.10));
+
+  return {
+    hand, chosen, order, notes, isClose,
+    handTopPct: hand.topPct
+  };
+}
+
+/* ---------- 4b. Random scenario generation for practice modes ---------- */
+
+function pickRandomStackBB(settings){
+  const pools = [];
+  if(settings.includeShort) pools.push(() => 6 + Math.floor(Math.random()*15));
+  if(settings.includeMid !== false){
+    pools.push(() => 21 + Math.floor(Math.random()*20));
+    pools.push(() => 41 + Math.floor(Math.random()*60));
+  }
+  if(!pools.length) return 30;
+  return pools[Math.floor(Math.random()*pools.length)]();
+}
+
+function pickRandomSituation(settings){
+  if(!settings.includeICM) return 'normal';
+  const keys = Object.keys(ICM_SITUATIONS);
+  return keys[Math.floor(Math.random()*keys.length)];
+}
+
+function pickRandomRelativeStack(){
+  const keys = Object.keys(RELATIVE_STACK);
+  return keys[Math.floor(Math.random()*keys.length)];
+}
+
+// Builds one complete, internally-consistent random preflop scenario.
+// settings: {includeShort, includeMid, includeICM, includeFacing, handSampling:'balanced'|'realistic'}
+function generatePreflopScenario(settings){
+  settings = Object.assign({includeShort:true, includeMid:true, includeICM:true,
+    includeFacing:true, handSampling:'balanced'}, settings || {});
+  const handKey = randomHandKey(settings.handSampling);
+  const position = POSITIONS_6MAX[Math.floor(Math.random()*POSITIONS_6MAX.length)];
+  const stackBB = pickRandomStackBB(settings);
+  const situation = pickRandomSituation(settings);
+  const relativeStack = situation === 'normal' ? 'average' : pickRandomRelativeStack();
+
+  let facing = 'open', raiserPosition = null;
+  const openers = earlierOpenerPositions(position);
+  if(settings.includeFacing && openers.length && Math.random() < 0.45){
+    facing = 'vsopen';
+    raiserPosition = openers[Math.floor(Math.random()*openers.length)];
+  }
+  if(position === 'BB' && facing === 'open'){
+    // Blinds act last preflop: BB can never be the one voluntarily opening.
+    facing = 'vsopen';
+    raiserPosition = openers[Math.floor(Math.random()*openers.length)];
+  }
+  return {handKey, position, facing, raiserPosition, stackBB, situation, relativeStack};
+}
+
+// Which seats could still act behind an opener at `heroPos`, weighted so
+// blinds (who defend most often in reality) are picked a bit more often.
+function pickVillainPositionForOpen(heroPos){
+  const idx = POSITIONS_6MAX.indexOf(heroPos);
+  const after = POSITIONS_6MAX.slice(idx+1);
+  if(!after.length) return null;
+  const weighted = [];
+  after.forEach(p => {
+    const w = p === 'BB' ? 3 : (p === 'SB' ? 1.5 : 1);
+    for(let i=0;i<Math.round(w*2);i++) weighted.push(p);
+  });
+  return weighted[Math.floor(Math.random()*weighted.length)];
+}
+
+// After the hero picks a preflop action, decide what actually happens next:
+// does a villain continue to the flop with them, and who are they?
+// This is a simplified opponent model (fixed continuation probabilities),
+// not a solver-derived villain range.
+function resolvePreflopOutcome({scenario, chosenAction}){
+  const {position, facing, raiserPosition, stackBB} = scenario;
+  const isShort = stackBB <= 20;
+
+  if(chosenAction === 'fold'){
+    return {continues:false, allIn:false, endReason:'hero_fold', villainPosition:null, isAggressor:false};
+  }
+
+  if(facing === 'open'){
+    if(chosenAction === 'push'){
+      const villainPosition = pickVillainPositionForOpen(position);
+      const called = villainPosition && Math.random() < 0.34;
+      if(!called) return {continues:false, allIn:false, endReason:'everyone_folds', villainPosition:null, isAggressor:true};
+      return {continues:false, allIn:true, endReason:'called_allin', villainPosition, isAggressor:true};
+    }
+    const villainPosition = pickVillainPositionForOpen(position);
+    const called = villainPosition && Math.random() < 0.45;
+    if(!called) return {continues:false, allIn:false, endReason:'everyone_folds', villainPosition:null, isAggressor:true};
+    return {continues:true, allIn:false, endReason:null, villainPosition, isAggressor:true};
+  }
+
+  // facing === 'vsopen' or 'vs3bet'
+  const villainPosition = raiserPosition;
+  if(chosenAction === 'call'){
+    if(isShort) return {continues:false, allIn:true, endReason:'called_allin_preflop', villainPosition, isAggressor:false};
+    return {continues:true, allIn:false, endReason:null, villainPosition, isAggressor:false};
+  }
+  if(chosenAction === '3bet'){
+    const called = Math.random() < 0.55;
+    if(!called) return {continues:false, allIn:false, endReason:'villain_folds_to_3bet', villainPosition:null, isAggressor:true};
+    return {continues:true, allIn:false, endReason:null, villainPosition, isAggressor:true};
+  }
+  return {continues:false, allIn:false, endReason:'unknown', villainPosition:null, isAggressor:false};
+}
+
+/* ============================================================
+   5. Postflop: cards, evaluator, board texture, heuristic engine
+   ============================================================ */
+
+const SUITS = ['s','h','d','c'];
+const SUIT_SYMBOL = {s:'♠', h:'♥', d:'♦', c:'♣'};
+const SUIT_COLOR_CLASS = {s:'blk', c:'blk', h:'red', d:'red'};
+
+function freshDeck(){
+  const deck = [];
+  for(const r of RANKS) for(const s of SUITS) deck.push({rank:r, suit:s});
+  return deck;
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function cardLabel(c){
+  return (RANK_LABEL[c.rank] || c.rank) + SUIT_SYMBOL[c.suit];
+}
+
+// ---- Hand evaluator (5,6 or 7 cards) -> {rank, name, tiebreak[]} ----
+// rank: 8=Straight Flush,7=Quads,6=Full House,5=Flush,4=Straight,
+// 3=Trips,2=Two Pair,1=Pair,0=High Card
+const HAND_NAMES = {
+  8:'ストレートフラッシュ', 7:'フォーカード', 6:'フルハウス', 5:'フラッシュ',
+  4:'ストレート', 3:'スリーカード', 2:'ツーペア', 1:'ワンペア', 0:'ハイカード'
+};
+
+function evaluate7(cards){
+  // cards: array of {rank,suit}, length 5-7
+  let best = null;
+  const idxs = cards.map((_,i)=>i);
+  const combos5 = kCombinations(idxs, 5);
+  for(const combo of combos5){
+    const hand = combo.map(i => cards[i]);
+    const score = evaluate5(hand);
+    if(!best || compareScore(score, best.score) > 0){
+      best = {score, cards: hand};
+    }
+  }
+  return best;
+}
+
+function kCombinations(arr, k){
+  const results = [];
+  function helper(start, combo){
+    if(combo.length === k){ results.push(combo.slice()); return; }
+    for(let i = start; i < arr.length; i++){
+      combo.push(arr[i]);
+      helper(i+1, combo);
+      combo.pop();
+    }
+  }
+  helper(0, []);
+  return results;
+}
+
+function evaluate5(cards){
+  const ranksV = cards.map(c => RANKS.indexOf(c.rank)).sort((a,b)=>b-a);
+  const suits = cards.map(c => c.suit);
+  const counts = {};
+  for(const r of ranksV) counts[r] = (counts[r]||0) + 1;
+  const groups = Object.entries(counts).map(([r,c]) => ({r:parseInt(r), c}))
+    .sort((a,b) => b.c - a.c || b.r - a.r);
+
+  const isFlush = suits.every(s => s === suits[0]);
+  const uniqueRanksDesc = [...new Set(ranksV)].sort((a,b)=>b-a);
+  let straightHigh = -1;
+  if(uniqueRanksDesc.length === 5){
+    if(uniqueRanksDesc[0] - uniqueRanksDesc[4] === 4) straightHigh = uniqueRanksDesc[0];
+    // wheel: A-2-3-4-5 -> ranks A=12,5=3,4=2,3=1,2=0
+    if(uniqueRanksDesc.join(',') === '12,3,2,1,0') straightHigh = 3;
+  }
+
+  if(isFlush && straightHigh >= 0) return {rank:8, tiebreak:[straightHigh]};
+  if(groups[0].c === 4) return {rank:7, tiebreak:[groups[0].r, groups[1].r]};
+  if(groups[0].c === 3 && groups[1] && groups[1].c === 2) return {rank:6, tiebreak:[groups[0].r, groups[1].r]};
+  if(isFlush) return {rank:5, tiebreak: ranksV};
+  if(straightHigh >= 0) return {rank:4, tiebreak:[straightHigh]};
+  if(groups[0].c === 3) return {rank:3, tiebreak:[groups[0].r, ...groups.slice(1).map(g=>g.r)]};
+  if(groups[0].c === 2 && groups[1] && groups[1].c === 2){
+    const pairRanks = groups.filter(g=>g.c===2).map(g=>g.r).sort((a,b)=>b-a);
+    const kicker = groups.find(g=>g.c===1).r;
+    return {rank:2, tiebreak:[...pairRanks, kicker]};
+  }
+  if(groups[0].c === 2) return {rank:1, tiebreak:[groups[0].r, ...groups.slice(1).map(g=>g.r)]};
+  return {rank:0, tiebreak: ranksV};
+}
+
+function compareScore(a, b){
+  if(a.rank !== b.rank) return a.rank - b.rank;
+  for(let i = 0; i < Math.max(a.tiebreak.length, b.tiebreak.length); i++){
+    const x = a.tiebreak[i] ?? -1, y = b.tiebreak[i] ?? -1;
+    if(x !== y) return x - y;
+  }
+  return 0;
+}
+
+// ---- Board texture analysis ----
+function analyzeBoard(board){
+  const ranksV = board.map(c => RANKS.indexOf(c.rank)).sort((a,b)=>b-a);
+  const suits = board.map(c => c.suit);
+  const suitCounts = {};
+  for(const s of suits) suitCounts[s] = (suitCounts[s]||0) + 1;
+  const maxSuit = Math.max(...Object.values(suitCounts));
+  const paired = new Set(ranksV).size < ranksV.length;
+  const uniqueSorted = [...new Set(ranksV)].sort((a,b)=>b-a);
+  let maxGapSpread = uniqueSorted.length > 1 ? uniqueSorted[0] - uniqueSorted[uniqueSorted.length-1] : 0;
+  const connected = uniqueSorted.length >= 3 && maxGapSpread <= 4;
+  const highCard = ranksV[0];
+
+  let wetness = 0;
+  if(maxSuit >= 3) wetness += 45; // flush-possible
+  else if(maxSuit === 2) wetness += 15;
+  if(connected) wetness += 35;
+  else if(maxGapSpread <= 6) wetness += 15;
+  if(paired) wetness -= 15; // paired boards reduce straight/flush texture but add fh possibility, net treated as drier for draws
+  if(highCard >= RANKS.indexOf('T')) wetness += 8;
+  wetness = Math.max(0, Math.min(100, wetness));
+
+  let label = 'ドライ';
+  if(wetness >= 60) label = 'ウェット';
+  else if(wetness >= 32) label = 'ミドル';
+
+  return {wetness, label, paired, flushPossible: maxSuit >= 3, connected, highCard};
+}
+
+// ---- Draw detection for hero's 2 cards + board (flop/turn) ----
+function analyzeDraws(holeCards, board){
+  const all = holeCards.concat(board);
+  const suits = {};
+  for(const c of all) suits[c.suit] = (suits[c.suit]||0) + 1;
+  let flushDraw = false, nutFlushDraw = false;
+  for(const s of SUITS){
+    if(suits[s] === 4){
+      flushDraw = true;
+      const hasAceOfSuit = holeCards.some(c => c.suit === s && c.rank === 'A');
+      if(hasAceOfSuit) nutFlushDraw = true;
+    }
+  }
+  const ranksV = [...new Set(all.map(c => RANKS.indexOf(c.rank)))].sort((a,b)=>a-b);
+  let oesd = false, gutshot = false;
+  for(let start = 0; start <= 8; start++){
+    const window = [start, start+1, start+2, start+3, start+4];
+    const present = window.filter(x => ranksV.includes(x));
+    if(present.length === 4){
+      const missing = window.find(x => !ranksV.includes(x));
+      if(missing === window[0] || missing === window[4]) oesd = true;
+      else gutshot = true;
+    }
+  }
+  return {flushDraw, nutFlushDraw, oesd, gutshot, hasDraw: flushDraw || oesd || gutshot};
+}
+
+// ---- Classify hero's made-hand strength on this board into a coarse
+//      category used to drive the heuristic engine ----
+function classifyHandStrength(holeCards, board){
+  const evalRes = evaluate7(holeCards.concat(board));
+  const rank = evalRes.score.rank;
+  const boardRanksV = board.map(c => RANKS.indexOf(c.rank));
+  const holeRanksV = holeCards.map(c => RANKS.indexOf(c.rank));
+  const topBoard = Math.max(...boardRanksV);
+  const draws = analyzeDraws(holeCards, board);
+
+  let category = 'air';
+  let strengthScore = 0; // 0-100 heuristic value used for thresholds
+
+  if(rank >= 6){ category = 'monster'; strengthScore = 96; }          // full house+
+  else if(rank === 5){ category = 'monster'; strengthScore = 90; }     // flush
+  else if(rank === 4){ category = 'monster'; strengthScore = 86; }     // straight
+  else if(rank === 3){ category = 'strong'; strengthScore = 80; }      // trips/set
+  else if(rank === 2){ category = 'strong'; strengthScore = 66; }      // two pair
+  else if(rank === 1){
+    // determine pair location: overpair / top pair / middle / bottom / pocket-under-board
+    const isPocketPair = holeRanksV[0] === holeRanksV[1];
+    const pairRank = evalRes.score.tiebreak[0];
+    if(isPocketPair && holeRanksV[0] > topBoard){ category = 'strong'; strengthScore = 78; } // overpair
+    else if(pairRank === topBoard){ category = 'toppair'; strengthScore = 58; }
+    else if(pairRank === Math.min(...boardRanksV)){ category = 'weakpair'; strengthScore = 30; }
+    else { category = 'midpair'; strengthScore = 42; }
+  } else {
+    // no made hand: check draw quality
+    if(draws.nutFlushDraw || (draws.flushDraw && draws.oesd)){ category = 'bigdraw'; strengthScore = 46; }
+    else if(draws.flushDraw || draws.oesd){ category = 'draw'; strengthScore = 34; }
+    else if(draws.gutshot){ category = 'weakdraw'; strengthScore = 20; }
+    else { category = 'air'; strengthScore = 6; }
+  }
+
+  return {evalRes, category, strengthScore, draws, handName: HAND_NAMES[rank]};
+}
+
+/* ---- Heuristic postflop decision engine ----
+   facingBet: false -> hero acts with nothing yet in front of them this
+              street (either checked to, or first to act) and picks check/bet.
+   facingBet: true  -> hero is facing a bet and picks fold/call/raise.
+   isAggressor: was hero the preflop raiser/3-bettor this hand?
+   heroInPosition: does hero act last postflop relative to this villain?
+   (These last two add nuance/reasoning on top of the core hand-strength +
+   texture read; they do not flip the fundamental decision by themselves.) */
+function recommendPostflop({facingBet, isAggressor, heroInPosition, street, strength, texture, spr}){
+  const {category, strengthScore} = strength;
+  const reasons = [];
+  let action, sizing = null;
+
+  if(!facingBet){
+    let betLean = 0;
+    if(texture.label === 'ドライ'){
+      betLean = 55; reasons.push('ドライなボードはプリフロップレイザー側にレンジ・ナッツアドバンテージがあり、小さいサイズで広く賭けやすい状況です。');
+    } else if(texture.label === 'ミドル'){
+      betLean = 42; reasons.push('中間的なテクスチャなので、ハンドの強さに応じてベット/チェックを選別する必要があります。');
+    } else {
+      betLean = 26; reasons.push('ウェットなボードはレンジ・ナッツアドバンテージが薄れるため、強いハンドやドロー中心にベットを絞ります。');
+    }
+    if(texture.paired) reasons.push('ペアボードはショーダウンバリューが安定しやすく、ブラフの通りも良い一方でナッツを打たれるリスクは低めです。');
+
+    if(isAggressor){
+      betLean += 12;
+      reasons.push('自分がプリフロップのアグレッサーなので、レンジ・ナッツアドバンテージを活かして頻度多くベットしやすい立場です。');
+    } else {
+      betLean -= 12;
+      reasons.push('自分はプリフロップで受け身のコーラー側なので、レンジ・ナッツアドバンテージは相手側にあり、ベットは絞って考えます。');
+    }
+    if(!heroInPosition){
+      betLean -= 6;
+      reasons.push('アウトオブポジションで自分から先に動く必要があり、後続ストリートの情報が少ないため、やや慎重なアプローチが基本です。');
+    }
+
+    const want = betLean + (strengthScore - 40) * 0.9;
+    if(want >= 52 || category === 'monster' || category === 'strong'){
+      action = 'bet';
+      sizing = (category === 'monster' || category === 'strong') && texture.label !== 'ドライ' ? '66-100%（バリュー厚め）' : '33-50%';
+      if(category === 'monster' || category === 'strong') reasons.push('強いメイドハンドなので、後続ストリートでの見込みバリューを最大化するために積極的にベットします。');
+      else if(category === 'bigdraw' || category === 'draw') reasons.push('エクイティの高いドローなので、フォールドエクイティと直接エクイティの両取りを狙ってベットする価値があります。');
+      else reasons.push('レンジ・ナッツアドバンテージを活かした頻度重視のベットです（純粋なブラフ〜薄いバリュー含む）。');
+    } else {
+      action = 'check';
+      if(category === 'toppair' || category === 'midpair') reasons.push('ショーダウンバリューはあるものの相手のチェックレイズや強いレンジに弱いため、ポットコントロールでチェックします。');
+      else if(category === 'weakdraw' || category === 'air') reasons.push('エクイティが低くフォールドエクイティも過大評価しやすいため、無理にベットせずチェックで損失を抑えます。');
+      else reasons.push('このテクスチャ・ハンド強度では頻度的にチェックが優先されます。');
+    }
+    if(spr <= 2 && (category === 'monster' || category === 'strong')){
+      action = 'bet'; sizing = '66-100%（SPRが低くコミットしやすい）';
+      reasons.push(`SPR（実効スタック÷ポット）が${spr.toFixed(1)}と低く、強いハンドは早めにポットを大きくしてコミットするのが自然です。`);
+    }
+  } else {
+    const potOddsEquityNeeded = 25; // rough flat-call breakeven approximation for a ~half pot bet
+    let raiseLean = 0;
+    if(category === 'monster') raiseLean = 70;
+    else if(category === 'strong') raiseLean = 40;
+    else if(category === 'bigdraw') raiseLean = 30;
+    if(heroInPosition) raiseLean += 5; // a raise in position is harder to play back at profitably
+
+    if(raiseLean >= 45 || category === 'monster'){
+      action = 'raise';
+      sizing = category === 'monster' ? 'ポットの2.5-3倍（バリューレイズ）' : 'ポットの2.5-3倍（セミブラフレイズ）';
+      reasons.push(category === 'monster'
+        ? '相手にコールしてもらえる範囲で最大の価値を引き出すため、レイズで積極的にバリューを取りに行きます。'
+        : 'エクイティが高く、フォールドを引き出せれば即座に得、コールされても十分戦えるドローなのでセミブラフでレイズします。');
+    } else if(strengthScore >= potOddsEquityNeeded || category === 'draw' || category === 'weakdraw'){
+      action = 'call';
+      reasons.push('ポットオッズに対して十分なショーダウンバリューやアウツがあるため、コールでポットに残ります。');
+    } else {
+      action = 'fold';
+      reasons.push('現在のエクイティではポットオッズに見合わず、これ以上チップを投入する根拠が薄いためフォールドします。');
+    }
+    if(isAggressor && action !== 'fold'){
+      reasons.push('自分が元々のアグレッサーに対して相手がベット/レイズしてきた形なので、相手のレンジは絞られている点も加味しています。');
+    }
+    if(texture.label === 'ウェット' && (category === 'toppair' || category === 'midpair')){
+      reasons.push('ウェットなボードでのミドル〜トップペアはリバーまでに逆転されやすいため、コールしすぎに注意が必要です。');
+    }
+  }
+
+  reasons.push(`ハンド評価: ${strength.handName}（${categoryLabelJP(category)}）`);
+  return {action, sizing, reasons, category};
+}
+
+// Simple opponent model for the postflop street: decides whether the
+// villain checks or bets when they are first to act, given whether they
+// hold preflop initiative. Not solver-derived, just plausible frequencies.
+function simulateVillainPostflopAction(villainIsAggressor, texture){
+  const betProb = villainIsAggressor
+    ? (texture.label === 'ドライ' ? 0.72 : texture.label === 'ミドル' ? 0.62 : 0.55)
+    : 0.12; // a non-aggressor villain rarely donk-leads
+  if(Math.random() < betProb){
+    const sizes = [33, 66, 100];
+    return {type:'bet', pct: sizes[Math.floor(Math.random()*sizes.length)]};
+  }
+  return {type:'check'};
+}
+
+function categoryLabelJP(category){
+  const map = {
+    monster:'モンスターハンド', strong:'強いメイドハンド', toppair:'トップペア相当',
+    midpair:'ミドルペア', weakpair:'弱いペア', bigdraw:'強いドロー(コンボドロー等)',
+    draw:'ドロー(フラッシュ/OESD)', weakdraw:'弱いドロー(ガットショット等)', air:'エアー(ノーメイド)'
+  };
+  return map[category] || category;
+}
+
+</script>
+<script id="ui-script">
+/* ============================================================
+   Poker ICM/GTO Trainer - UI wiring (DOM). Depends on logic.js
+   functions being present in the same global scope.
+   ============================================================ */
+(function(){
+'use strict';
+
+/* ---------- small DOM helpers ---------- */
+function $(sel, root){ return (root||document).querySelector(sel); }
+function $all(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+function el(tag, attrs, children){
+  const e = document.createElement(tag);
+  if(attrs) for(const k in attrs){
+    if(k === 'class') e.className = attrs[k];
+    else if(k === 'html') e.innerHTML = attrs[k];
+    else if(k.startsWith('on') && typeof attrs[k] === 'function') e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  }
+  (children||[]).forEach(c => { if(c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return e;
+}
+
+/* ---------- shared labels ---------- */
+const POSITION_LABELS = {
+  UTG:'UTG（アーリー）', MP:'MP（ミドル）', HJ:'HJ（ハイジャック）', CO:'CO（カットオフ）',
+  BTN:'BTN（ボタン）', SB:'SB（スモールブラインド）', BB:'BB（ビッグブラインド）'
+};
+const POSITIONS_ALL = ['UTG','MP','HJ','CO','BTN','SB','BB'];
+const POSITIONS_OPENERS = ['UTG','MP','HJ','CO','BTN','SB'];
+
+const STACK_PRESETS = [
+  {key:'short', label:'ショート (15BB)', bb:15},
+  {key:'mid', label:'ミドル (30BB)', bb:30},
+  {key:'deep', label:'ディープ (75BB)', bb:75}
+];
+
+function actionColor(action){
+  switch(action){
+    case 'fold': return {bg:'var(--gridline)', fg:'var(--text-secondary)', label:'フォールド'};
+    case 'call': return {bg:'var(--series-1)', fg:'#fff', label:'コール'};
+    case 'raise': return {bg:'var(--series-7)', fg:'#fff', label:'オープンレイズ'};
+    case '3bet': return {bg:'var(--series-7)', fg:'#fff', label:'3ベット/4ベット'};
+    case 'push': return {bg:'var(--series-2)', fg:'#fff', label:'オールインプッシュ'};
+    default: return {bg:'var(--gridline)', fg:'var(--text-secondary)', label:action};
+  }
+}
+
+function actionBadge(action, customLabel){
+  const c = actionColor(action);
+  return el('span', {class:'badge', style:`background:${c.bg};color:${c.fg};`}, [customLabel || c.label]);
+}
+
+function fmtPct(n){ return (Math.round(n*10)/10).toFixed(1) + '%'; }
+
+/* ---------- hand key helpers ----------
+   NOTE: randomHandKey(mode) itself lives in logic.js ('balanced'|'realistic')
+   so it can be shared by the quiz and the full-hand practice tab. */
+const RANK_ORDER = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+
+// Populate a <select> with the positions that could plausibly be the
+// "other player" for the given hero position + facing type, preserving
+// the current value when still valid. Returns the resulting value.
+function populateRaiserOptions(selectEl, heroPos, facing, currentValue){
+  const opts = facing === 'vs3bet' ? laterPositions(heroPos) : earlierOpenerPositions(heroPos);
+  selectEl.innerHTML = '';
+  opts.forEach(p => selectEl.appendChild(el('option', {value:p}, [POSITION_LABELS[p]])));
+  let value = opts.includes(currentValue) ? currentValue : (opts.length ? opts[opts.length-1] : null);
+  if(value) selectEl.value = value;
+  selectEl.disabled = opts.length === 0;
+  return value;
+}
+
+function handDisplayCards(key){
+  // returns two pseudo cards for visual display with arbitrary suits
+  const h = handInfo(key);
+  if(h.pair){
+    return [{rank:h.hi, suit:'s'}, {rank:h.hi, suit:'h'}];
+  }
+  if(h.suited){
+    return [{rank:h.hi, suit:'s'}, {rank:h.lo, suit:'s'}];
+  }
+  return [{rank:h.hi, suit:'s'}, {rank:h.lo, suit:'h'}];
+}
+
+function renderPlayingCard(card, size){
+  const cls = 'pcard ' + (SUIT_COLOR_CLASS[card.suit]) + (size === 'sm' ? ' sm' : '');
+  return el('div', {class: cls}, [
+    el('div', {}, [ (RANK_LABEL[card.rank] || card.rank) ]),
+    el('div', {}, [ SUIT_SYMBOL[card.suit] ])
+  ]);
+}
+
+function cardBackEl(size){
+  return el('div', {class:'pcard back' + (size === 'sm' ? ' sm' : '')}, ['?']);
+}
+
+/* ============================================================
+   TAB 1: 診断シミュレーター
+   ============================================================ */
+let diag = { rank1:'A', rank2:'K', suited:true, position:'BTN', facing:'open',
+             raiserPosition:'CO', stackBB:30, situation:'normal', relativeStack:'average' };
+
+function diagHandKey(){
+  if(diag.rank1 === diag.rank2) return diag.rank1 + diag.rank2;
+  const i1 = RANK_ORDER.indexOf(diag.rank1), i2 = RANK_ORDER.indexOf(diag.rank2);
+  const hi = i1 < i2 ? diag.rank1 : diag.rank2;
+  const lo = i1 < i2 ? diag.rank2 : diag.rank1;
+  return hi + lo + (diag.suited ? 's' : 'o');
+}
+
+function renderDiagnoseTab(){
+  const panel = $('#panel-diagnose');
+  panel.innerHTML = '';
+
+  const card = el('div', {class:'card'});
+  card.appendChild(el('h2', {}, ['シナリオを指定して推奨アクションを見る']));
+  card.appendChild(el('p', {style:'color:var(--text-secondary);font-size:0.88rem;margin-top:-6px;'},
+    ['例：「AKs・残り1人で入賞確定（マネーバブル）・スタックはミドル・BTNから参加」のようなシチュエーションを設定できます。']));
+
+  const form = el('div', {class:'grid-form'});
+
+  // hand pickers
+  const rankOptions = () => RANK_ORDER.map(r => el('option', {value:r, ...(diag.rank1===r?{}:{})}, [RANK_LABEL[r]||r]));
+
+  const f1 = el('div', {class:'field'});
+  f1.appendChild(el('label', {}, ['ハンド：1枚目']));
+  const sel1 = el('select', {onchange:e=>{diag.rank1=e.target.value; refreshDiag();}}, rankOptions());
+  sel1.value = diag.rank1;
+  f1.appendChild(sel1);
+
+  const f2 = el('div', {class:'field'});
+  f2.appendChild(el('label', {}, ['ハンド：2枚目']));
+  const sel2 = el('select', {onchange:e=>{diag.rank2=e.target.value; refreshDiag();}}, rankOptions());
+  sel2.value = diag.rank2;
+  f2.appendChild(sel2);
+
+  const f3 = el('div', {class:'field'});
+  f3.appendChild(el('label', {}, ['スート']));
+  const suitedWrap = el('div', {class:'pill-group'});
+  const bS = el('button', {type:'button', onclick:()=>{diag.suited=true; refreshDiag();}}, ['スーテッド (s)']);
+  const bO = el('button', {type:'button', onclick:()=>{diag.suited=false; refreshDiag();}}, ['オフスート (o)']);
+  suitedWrap.appendChild(bS); suitedWrap.appendChild(bO);
+  f3.appendChild(suitedWrap);
+
+  const f4 = el('div', {class:'field'});
+  f4.appendChild(el('label', {}, ['ポジション']));
+  const selPos = el('select', {onchange:e=>{
+    diag.position = e.target.value;
+    const noEarlier = diag.facing === 'vsopen' && earlierOpenerPositions(diag.position).length === 0;
+    const noLater = diag.facing === 'vs3bet' && laterPositions(diag.position).length === 0;
+    if(noEarlier || noLater){
+      diag.facing = 'open';
+      selFacing.value = 'open';
+    }
+    diag.raiserPosition = populateRaiserOptions(selRaiser, diag.position, diag.facing, diag.raiserPosition);
+    refreshDiag();
+  }}, POSITIONS_ALL.map(p => el('option', {value:p}, [POSITION_LABELS[p]])));
+  selPos.value = diag.position;
+  f4.appendChild(selPos);
+
+  const f5 = el('div', {class:'field'});
+  f5.appendChild(el('label', {}, ['状況（アクション前の状態）']));
+  const selFacing = el('select', {onchange:e=>{
+    diag.facing = e.target.value;
+    diag.raiserPosition = populateRaiserOptions(selRaiser, diag.position, diag.facing, diag.raiserPosition);
+    refreshDiag();
+  }}, [
+    el('option', {value:'open'}, ['自分が最初にアクション（オープン）']),
+    el('option', {value:'vsopen'}, ['誰かがオープンレイズ済み']),
+    el('option', {value:'vs3bet'}, ['自分のオープンに3ベットされた'])
+  ]);
+  selFacing.value = diag.facing;
+  f5.appendChild(selFacing);
+
+  const f6 = el('div', {class:'field', id:'raiserPosField'});
+  f6.appendChild(el('label', {id:'raiserPosLabel'}, ['レイザーのポジション']));
+  const selRaiser = el('select', {onchange:e=>{diag.raiserPosition=e.target.value; refreshDiag();}}, []);
+  diag.raiserPosition = populateRaiserOptions(selRaiser, diag.position, diag.facing, diag.raiserPosition);
+  f6.appendChild(selRaiser);
+
+  const f7 = el('div', {class:'field'});
+  f7.appendChild(el('label', {}, ['実効スタック（BB）']));
+  const stackInput = el('input', {type:'number', min:'4', max:'200', value:String(diag.stackBB),
+    oninput:e=>{diag.stackBB = Math.max(4, parseInt(e.target.value||'30',10)); refreshDiag();}});
+  f7.appendChild(stackInput);
+  const stackPresets = el('div', {class:'pill-group', style:'margin-top:6px;'});
+  STACK_PRESETS.forEach(p => stackPresets.appendChild(el('button', {type:'button', onclick:()=>{
+    diag.stackBB = p.bb; stackInput.value = String(p.bb); refreshDiag();
+  }}, [p.label])));
+  f7.appendChild(stackPresets);
+
+  const f8 = el('div', {class:'field'});
+  f8.appendChild(el('label', {}, ['ICM状況（トーナメントの局面）']));
+  const selSit = el('select', {onchange:e=>{diag.situation=e.target.value; refreshDiag();}},
+    Object.keys(ICM_SITUATIONS).map(k => el('option', {value:k}, [ICM_SITUATIONS[k].label])));
+  selSit.value = diag.situation;
+  f8.appendChild(selSit);
+
+  const f9 = el('div', {class:'field'});
+  f9.appendChild(el('label', {}, ['自分のスタック（相対的に）']));
+  const selRel = el('select', {onchange:e=>{diag.relativeStack=e.target.value; refreshDiag();}},
+    Object.keys(RELATIVE_STACK).map(k => el('option', {value:k}, [RELATIVE_STACK[k].label])));
+  selRel.value = diag.relativeStack;
+  f9.appendChild(selRel);
+
+  [f1,f2,f3,f4,f5,f6,f7,f8,f9].forEach(f => form.appendChild(f));
+  card.appendChild(form);
+
+  const presetsWrap = el('div', {style:'margin-top:14px;'});
+  presetsWrap.appendChild(el('h3', {}, ['クイック設定']));
+  const presetPills = el('div', {class:'pill-group'});
+  const quickHands = ['AA','KK','AKs','AKo','QQ','JJ','76s','AJo','KTs','72o'];
+  quickHands.forEach(k => {
+    presetPills.appendChild(el('button', {type:'button', onclick:()=>{
+      const h = handInfo(k);
+      diag.rank1 = h.hi; diag.rank2 = h.lo; diag.suited = h.suited;
+      sel1.value = diag.rank1; sel2.value = diag.rank2;
+      refreshDiag();
+    }}, [k]));
+  });
+  presetPills.appendChild(el('button', {type:'button', onclick:()=>{
+    const key = randomHandKey('realistic');
+    const h = handInfo(key);
+    diag.rank1 = h.hi; diag.rank2 = h.lo; diag.suited = h.suited;
+    sel1.value = diag.rank1; sel2.value = diag.rank2;
+    refreshDiag();
+  }}, ['🎲 ランダム']));
+  presetsWrap.appendChild(presetPills);
+  card.appendChild(presetsWrap);
+
+  const resultAnchor = el('div', {id:'diagResult'});
+  card.appendChild(resultAnchor);
+
+  panel.appendChild(card);
+
+  function updateSuitedButtons(){
+    const isPair = diag.rank1 === diag.rank2;
+    bS.disabled = isPair; bO.disabled = isPair;
+    bS.classList.toggle('selected', !isPair && diag.suited);
+    bO.classList.toggle('selected', !isPair && !diag.suited);
+    if(isPair){ bS.classList.remove('selected'); bO.classList.remove('selected'); }
+    f6.style.display = diag.facing === 'open' ? 'none' : '';
+    $('#raiserPosLabel').textContent = diag.facing === 'vs3bet' ? '3ベットしたプレイヤーのポジション' : 'オープンレイズしたプレイヤーのポジション';
+  }
+  window.__diagRefresh = refreshDiag;
+  function refreshDiag(){
+    updateSuitedButtons();
+    renderDiagResult();
+  }
+  refreshDiag();
+}
+
+function renderDiagResult(){
+  const anchor = $('#diagResult');
+  if(!anchor) return;
+  anchor.innerHTML = '';
+  const key = diagHandKey();
+  const scenario = {
+    handKey:key, position:diag.position, facing:diag.facing, raiserPosition:diag.raiserPosition,
+    stackBB:diag.stackBB, situation:diag.situation, relativeStack:diag.relativeStack
+  };
+  const res = recommendPreflop(scenario);
+  const c = actionColor(res.chosen.action);
+
+  const box = el('div', {class:'result-box', style:`background:${cssAlpha(c.bg,0.10)};border-color:${c.bg};`});
+  const headline = el('div', {class:'result-headline'});
+  const cardsRow = el('div', {class:'cards-row'});
+  handDisplayCards(key).forEach(cd => cardsRow.appendChild(renderPlayingCard(cd)));
+  headline.appendChild(cardsRow);
+  headline.appendChild(el('div', {class:'hand-key-display'}, [key]));
+  headline.appendChild(el('span', {class:'action-big', style:`color:${c.bg};`}, ['→ ' + (res.chosen.label)]));
+  box.appendChild(headline);
+
+  const notesList = el('ul', {class:'reasons'});
+  res.notes.forEach(n => notesList.appendChild(el('li', {}, [n])));
+  notesList.appendChild(el('li', {}, [
+    `このハンド（${key}）は全169種類中、強さで上位 ${fmtPct(res.handTopPct)} に位置します。`
+  ]));
+  notesList.appendChild(el('li', {}, [
+    `この状況での閾値は 上位${fmtPct(res.chosen.thresholdPct)} 以内 → ${res.chosen.label} という判定です。`
+  ]));
+  if(diag.situation !== 'normal'){
+    notesList.appendChild(el('li', {}, [
+      `ICM状況「${ICM_SITUATIONS[diag.situation].label}」と相対スタック「${RELATIVE_STACK[diag.relativeStack].label}」を踏まえて閾値を調整しています。`
+    ]));
+  }
+  box.appendChild(notesList);
+
+  if(res.isClose){
+    box.appendChild(el('div', {class:'close-note'}, [
+      '⚖️ 僅差の判断です。実戦では頻度を混ぜるミックス戦略（例：レイズとフォールドを一定割合で使い分ける）が最適になりやすいゾーンです。'
+    ]));
+  }
+
+  const meta = el('div', {class:'meta-row'});
+  meta.appendChild(el('span', {}, ['ポジション: ', el('b', {}, [POSITION_LABELS[diag.position]])]));
+  meta.appendChild(el('span', {}, ['スタック: ', el('b', {}, [diag.stackBB + 'BB']) ]));
+  meta.appendChild(el('span', {}, ['ICM: ', el('b', {}, [ICM_SITUATIONS[diag.situation].label])]));
+  box.appendChild(meta);
+
+  anchor.appendChild(box);
+}
+
+function cssAlpha(varExpr, alpha){
+  // best effort: if it's a var(--x) we can't easily read alpha without computed style;
+  // fall back to a translucent overlay using color-mix where supported.
+  return `color-mix(in srgb, ${varExpr} ${Math.round(alpha*100)}%, var(--surface-1))`;
+}
+
+/* ============================================================
+   TAB 2: プリフロップ ランダム練習クイズ
+   ============================================================ */
+let quiz = {
+  started:false, current:null, score:{correct:0, total:0, streak:0, best:0},
+  settings:{ includeShort:true, includeMid:true, includeICM:true, includeFacing:true, handSampling:'balanced' }
+};
+
+function renderPreflopQuizTab(){
+  const panel = $('#panel-preflopquiz');
+  panel.innerHTML = '';
+
+  const settingsCard = el('div', {class:'card'});
+  settingsCard.appendChild(el('h2', {}, ['プリフロップ練習：設定']));
+  const form = el('div', {class:'grid-form'});
+
+  function toggleField(labelText, key){
+    const f = el('div', {class:'field'});
+    f.appendChild(el('label', {}, [labelText]));
+    const pg = el('div', {class:'pill-group'});
+    const btn = el('button', {type:'button'}, [quiz.settings[key] ? 'ON' : 'OFF']);
+    btn.classList.toggle('selected', quiz.settings[key]);
+    btn.addEventListener('click', ()=>{
+      quiz.settings[key] = !quiz.settings[key];
+      btn.textContent = quiz.settings[key] ? 'ON' : 'OFF';
+      btn.classList.toggle('selected', quiz.settings[key]);
+    });
+    pg.appendChild(btn);
+    f.appendChild(pg);
+    return f;
+  }
+  form.appendChild(toggleField('ショートスタックの出題を含める', 'includeShort'));
+  form.appendChild(toggleField('ミドル/ディープスタックの出題を含める', 'includeMid'));
+  form.appendChild(toggleField('ICM状況（バブル等）をランダムに含める', 'includeICM'));
+  form.appendChild(toggleField('「オープン」以外に「オープンに対して」の問題も含める', 'includeFacing'));
+  settingsCard.appendChild(form);
+
+  const samplingField = el('div', {class:'field', style:'margin-top:12px;'});
+  samplingField.appendChild(el('label', {}, ['出題ハンドの分布']));
+  const samplingPills = el('div', {class:'pill-group'});
+  const bBalanced = el('button', {type:'button'}, ['バランス型（学習向け・推奨）']);
+  const bRealistic = el('button', {type:'button'}, ['リアル頻度（実際の配布頻度）']);
+  function syncSamplingButtons(){
+    bBalanced.classList.toggle('selected', quiz.settings.handSampling === 'balanced');
+    bRealistic.classList.toggle('selected', quiz.settings.handSampling === 'realistic');
+  }
+  bBalanced.onclick = ()=>{ quiz.settings.handSampling = 'balanced'; syncSamplingButtons(); };
+  bRealistic.onclick = ()=>{ quiz.settings.handSampling = 'realistic'; syncSamplingButtons(); };
+  syncSamplingButtons();
+  samplingPills.appendChild(bBalanced); samplingPills.appendChild(bRealistic);
+  samplingField.appendChild(samplingPills);
+  samplingField.appendChild(el('div', {class:'hint'}, [
+    '実際の配布頻度どおりだと弱いハンドが多く「フォールドばかり」になりがちです。バランス型は際どい判断が増えるよう調整した学習向けの出題です。'
+  ]));
+  settingsCard.appendChild(samplingField);
+  settingsCard.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startQuizRound}, ['練習をはじめる / 次の問題'])
+  ]));
+  panel.appendChild(settingsCard);
+
+  const scoreCard = el('div', {class:'card'});
+  scoreCard.id = 'quizScoreCard';
+  panel.appendChild(scoreCard);
+
+  const qCard = el('div', {class:'card'});
+  qCard.id = 'quizQuestionCard';
+  qCard.style.display = 'none';
+  panel.appendChild(qCard);
+
+  renderQuizScore();
+}
+
+function renderQuizScore(){
+  const c = $('#quizScoreCard');
+  if(!c) return;
+  c.innerHTML = '';
+  const acc = quiz.score.total ? Math.round(quiz.score.correct/quiz.score.total*100) : 0;
+  const strip = el('div', {class:'score-strip'});
+  strip.appendChild(el('span', {}, ['正解数: ', el('b', {}, [`${quiz.score.correct} / ${quiz.score.total}`])]));
+  strip.appendChild(el('span', {}, ['正答率: ', el('b', {}, [`${acc}%`])]));
+  strip.appendChild(el('span', {}, ['連続正解: ', el('b', {}, [`${quiz.score.streak}`])]));
+  strip.appendChild(el('span', {}, ['ベスト連続正解: ', el('b', {}, [`${quiz.score.best}`])]));
+  c.appendChild(strip);
+}
+
+function startQuizRound(){
+  quiz.started = true;
+  // Scenario generation (hand sampling, position, stack, ICM, facing) is
+  // centralized in logic.js's generatePreflopScenario() so the quiz and the
+  // full-hand practice tab stay consistent and both get the bias fix below.
+  const scenario = generatePreflopScenario(quiz.settings);
+  const res = recommendPreflop(scenario);
+  quiz.current = {scenario, res};
+
+  $('#quizQuestionCard').style.display = '';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const card = $('#quizQuestionCard');
+  card.innerHTML = '';
+  const {scenario, res} = quiz.current;
+
+  card.appendChild(el('h2', {}, ['この状況、あなたのアクションは？']));
+
+  const cardsRow = el('div', {class:'cards-row'});
+  handDisplayCards(scenario.handKey).forEach(cd => cardsRow.appendChild(renderPlayingCard(cd)));
+  cardsRow.appendChild(el('div', {class:'hand-key-display'}, [scenario.handKey]));
+  card.appendChild(cardsRow);
+
+  const meta = el('div', {class:'meta-row'});
+  meta.appendChild(el('span', {}, ['ポジション: ', el('b', {}, [POSITION_LABELS[scenario.position]])]));
+  meta.appendChild(el('span', {}, ['スタック: ', el('b', {}, [scenario.stackBB + 'BB']) ]));
+  meta.appendChild(el('span', {}, ['ICM: ', el('b', {}, [ICM_SITUATIONS[scenario.situation].label])]));
+  if(scenario.situation !== 'normal'){
+    meta.appendChild(el('span', {}, ['自分のスタック: ', el('b', {}, [RELATIVE_STACK[scenario.relativeStack].label])]));
+  }
+  card.appendChild(meta);
+
+  const situationText = scenario.facing === 'open'
+    ? '誰もレイズしておらず、あなたが最初にアクションします。'
+    : `${POSITION_LABELS[scenario.raiserPosition]}がオープンレイズしました。あなたの番です。`;
+  card.appendChild(el('p', {style:'margin-top:10px;font-weight:600;'}, [situationText]));
+
+  const isShort = scenario.stackBB <= 20;
+  const actions = [];
+  if(scenario.facing === 'open'){
+    actions.push(isShort ? {action:'push', label:'オールインプッシュ'} : {action:'raise', label:'オープンレイズ'});
+    actions.push({action:'fold', label:'フォールド'});
+  } else {
+    if(isShort){
+      actions.push({action:'call', label:'コール（実質オールイン）'});
+    } else {
+      actions.push({action:'3bet', label: scenario.facing === 'vs3bet' ? '4ベット' : '3ベット'});
+      actions.push({action:'call', label:'コール'});
+    }
+    actions.push({action:'fold', label:'フォールド'});
+  }
+
+  const btnRow = el('div', {class:'btn-row'});
+  actions.forEach(a => {
+    const c = actionColor(a.action);
+    btnRow.appendChild(el('button', {class:'btn', style:`background:${c.bg};color:${c.fg};`,
+      onclick: () => answerQuiz(a.action)}, [a.label]));
+  });
+  card.appendChild(btnRow);
+
+  card.appendChild(el('div', {id:'quizFeedback'}));
+}
+
+// Shared between the quiz tab and the full-hand practice tab.
+function isPreflopCorrect(chosenAction, res){
+  return chosenAction === res.chosen.action ||
+    (res.isClose && ['call','raise','3bet','push'].includes(chosenAction) && ['call','raise','3bet','push'].includes(res.chosen.action));
+}
+
+function buildPreflopFeedbackBox(res, correct){
+  const box = el('div', {class:'result-box', style:`background:${cssAlpha(correct?"var(--good)":"var(--critical)", 0.10)};border-color:${correct?"var(--good)":"var(--critical)"};`});
+  box.appendChild(el('div', {class:'result-headline'}, [
+    el('span', {class:'badge ' + (correct?'good':'critical')}, [correct ? '正解！' : '不正解']),
+    el('span', {}, [`推奨アクション: `]), actionBadge(res.chosen.action, res.chosen.label)
+  ]));
+  const list = el('ul', {class:'reasons'});
+  list.appendChild(el('li', {}, [`ハンド強度: 上位 ${fmtPct(res.handTopPct)}（全169種類中）`]));
+  list.appendChild(el('li', {}, [`この状況の閾値: 上位 ${fmtPct(res.chosen.thresholdPct)} 以内`]));
+  res.notes.forEach(n => list.appendChild(el('li', {}, [n])));
+  box.appendChild(list);
+  if(res.isClose){
+    box.appendChild(el('div', {class:'close-note'}, ['⚖️ 僅差の判断ゾーンです。実戦ではミックス戦略が使われやすい場面です。']));
+  }
+  return box;
+}
+
+function answerQuiz(chosenAction){
+  const {scenario, res} = quiz.current;
+  const correct = isPreflopCorrect(chosenAction, res);
+  quiz.score.total++;
+  if(correct){
+    quiz.score.correct++; quiz.score.streak++;
+    quiz.score.best = Math.max(quiz.score.best, quiz.score.streak);
+  } else {
+    quiz.score.streak = 0;
+  }
+  renderQuizScore();
+
+  const fb = $('#quizFeedback');
+  fb.innerHTML = '';
+  fb.appendChild(buildPreflopFeedbackBox(res, correct));
+  fb.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startQuizRound}, ['次の問題へ →'])
+  ]));
+}
+
+/* ============================================================
+   TAB 3: レンジ表（ヒートマップ）
+   ============================================================ */
+let rangeChartState = {mode:'action', position:'BTN', facing:'open', raiserPosition:'CO',
+                        stackBB:30, situation:'normal', relativeStack:'average'};
+
+function renderRangeChartTab(){
+  const panel = $('#panel-rangechart');
+  panel.innerHTML = '';
+
+  const card = el('div', {class:'card'});
+  card.appendChild(el('h2', {}, ['レンジ表（参考ハンドチャート）']));
+  card.appendChild(el('p', {style:'color:var(--text-secondary);font-size:0.88rem;margin-top:-6px;'}, [
+    'ヨコサワレンジ表のような「色で見て覚える」タイプの一覧です。強さのヒートマップ表示と、設定した状況での推奨アクション表示を切り替えられます。'
+  ]));
+
+  const modePills = el('div', {class:'pill-group', style:'margin-bottom:12px;'});
+  const bAction = el('button', {type:'button'}, ['状況別アクション表示']);
+  const bStrength = el('button', {type:'button'}, ['ハンド強度ヒートマップ']);
+  function syncModeButtons(){
+    bAction.classList.toggle('selected', rangeChartState.mode==='action');
+    bStrength.classList.toggle('selected', rangeChartState.mode==='strength');
+  }
+  bAction.onclick = ()=>{ rangeChartState.mode='action'; syncModeButtons(); refreshRangeGrid(); };
+  bStrength.onclick = ()=>{ rangeChartState.mode='strength'; syncModeButtons(); refreshRangeGrid(); };
+  syncModeButtons();
+  modePills.appendChild(bAction); modePills.appendChild(bStrength);
+  card.appendChild(modePills);
+
+  const form = el('div', {class:'grid-form', id:'rangeForm'});
+  const fPos = el('div', {class:'field'});
+  fPos.appendChild(el('label', {}, ['ポジション']));
+  const selPos = el('select', {onchange:e=>{
+    rangeChartState.position=e.target.value;
+    if(rangeChartState.facing === 'vsopen' && earlierOpenerPositions(rangeChartState.position).length === 0){
+      rangeChartState.facing = 'open'; selFacing.value = 'open';
+    }
+    rangeChartState.raiserPosition = populateRaiserOptions(selRaiser, rangeChartState.position, rangeChartState.facing, rangeChartState.raiserPosition);
+    refreshRangeGrid();
+  }}, POSITIONS_ALL.map(p=>el('option',{value:p},[POSITION_LABELS[p]])));
+  selPos.value = rangeChartState.position;
+  fPos.appendChild(selPos);
+
+  const fFacing = el('div', {class:'field'});
+  fFacing.appendChild(el('label', {}, ['状況']));
+  const selFacing = el('select', {onchange:e=>{
+    rangeChartState.facing=e.target.value;
+    rangeChartState.raiserPosition = populateRaiserOptions(selRaiser, rangeChartState.position, rangeChartState.facing, rangeChartState.raiserPosition);
+    refreshRangeGrid();
+  }}, [
+    el('option', {value:'open'}, ['オープン（最初のアクション）']),
+    el('option', {value:'vsopen'}, ['誰かのオープンに対して'])
+  ]);
+  selFacing.value = rangeChartState.facing;
+  fFacing.appendChild(selFacing);
+
+  const fRaiser = el('div', {class:'field'});
+  fRaiser.appendChild(el('label', {}, ['オープンレイズしたプレイヤーのポジション']));
+  const selRaiser = el('select', {onchange:e=>{rangeChartState.raiserPosition=e.target.value; refreshRangeGrid();}}, []);
+  rangeChartState.raiserPosition = populateRaiserOptions(selRaiser, rangeChartState.position, rangeChartState.facing, rangeChartState.raiserPosition);
+  fRaiser.appendChild(selRaiser);
+
+  const fStack = el('div', {class:'field'});
+  fStack.appendChild(el('label', {}, ['実効スタック（BB）']));
+  const stackInput = el('input', {type:'number', min:'4', max:'200', value:String(rangeChartState.stackBB),
+    oninput:e=>{rangeChartState.stackBB=Math.max(4,parseInt(e.target.value||'30',10)); refreshRangeGrid();}});
+  fStack.appendChild(stackInput);
+
+  const fSit = el('div', {class:'field'});
+  fSit.appendChild(el('label', {}, ['ICM状況']));
+  const selSit = el('select', {onchange:e=>{rangeChartState.situation=e.target.value; refreshRangeGrid();}},
+    Object.keys(ICM_SITUATIONS).map(k=>el('option',{value:k},[ICM_SITUATIONS[k].label])));
+  selSit.value = rangeChartState.situation;
+  fSit.appendChild(selSit);
+
+  const fRel = el('div', {class:'field'});
+  fRel.appendChild(el('label', {}, ['自分のスタック（相対的）']));
+  const selRel = el('select', {onchange:e=>{rangeChartState.relativeStack=e.target.value; refreshRangeGrid();}},
+    Object.keys(RELATIVE_STACK).map(k=>el('option',{value:k},[RELATIVE_STACK[k].label])));
+  selRel.value = rangeChartState.relativeStack;
+  fRel.appendChild(selRel);
+
+  [fPos, fFacing, fRaiser, fStack, fSit, fRel].forEach(f=>form.appendChild(f));
+  card.appendChild(form);
+
+  const gridWrap = el('div', {id:'rangeGridWrap', style:'margin-top:16px;'});
+  card.appendChild(gridWrap);
+
+  const legend = el('div', {class:'range-legend', id:'rangeLegend'});
+  card.appendChild(legend);
+
+  const hoverInfo = el('div', {id:'rangeHoverInfo', class:'meta-row', style:'margin-top:10px;'});
+  card.appendChild(hoverInfo);
+
+  panel.appendChild(card);
+
+  function updateVisibility(){
+    fRaiser.style.display = rangeChartState.facing === 'vsopen' ? '' : 'none';
+    form.style.display = rangeChartState.mode === 'action' ? '' : 'none';
+  }
+  window.__rangeUpdateVisibility = updateVisibility;
+  updateVisibility();
+  refreshRangeGrid();
+}
+
+function seqColorForPct(topPct){
+  // topPct: 0 (strongest) .. 100 (weakest) -> darker blue = stronger
+  const steps = [
+    [0.5,'--seq-700'], [1.5,'--seq-650'], [3,'--seq-600'], [5,'--seq-550'],
+    [8,'--seq-500'], [12,'--seq-450'], [17,'--seq-400'], [23,'--seq-350'],
+    [30,'--seq-300'], [40,'--seq-250'], [55,'--seq-200'], [75,'--seq-150'], [100.01,'--seq-100']
+  ];
+  for(const [max, varName] of steps){
+    if(topPct <= max) return `var(${varName})`;
+  }
+  return 'var(--seq-100)';
+}
+
+function refreshRangeGrid(){
+  if(window.__rangeUpdateVisibility) window.__rangeUpdateVisibility();
+  const wrap = $('#rangeGridWrap');
+  const legend = $('#rangeLegend');
+  const hoverInfo = $('#rangeHoverInfo');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  legend.innerHTML = '';
+  const grid = el('div', {class:'range-grid'});
+
+  const st = rangeChartState;
+  for(let i=0;i<13;i++){
+    for(let j=0;j<13;j++){
+      const hi = i<=j ? RANK_ORDER[i] : RANK_ORDER[j];
+      const lo = i<=j ? RANK_ORDER[j] : RANK_ORDER[i];
+      let key;
+      if(i===j) key = RANK_ORDER[i]+RANK_ORDER[i];
+      else if(i<j) key = RANK_ORDER[i]+RANK_ORDER[j]+'s'; // upper triangle suited
+      else key = RANK_ORDER[j]+RANK_ORDER[i]+'o'; // lower triangle offsuit
+      const hand = handInfo(key);
+      let bg, title;
+      if(st.mode === 'strength'){
+        bg = seqColorForPct(hand.topPct);
+        title = `${key}  上位${fmtPct(hand.topPct)}`;
+      } else {
+        const scenario = {handKey:key, position:st.position, facing:st.facing, raiserPosition:st.raiserPosition,
+          stackBB:st.stackBB, situation:st.situation, relativeStack:st.relativeStack};
+        const res = recommendPreflop(scenario);
+        const c = actionColor(res.chosen.action);
+        bg = c.bg;
+        title = `${key} → ${res.chosen.label} (上位${fmtPct(hand.topPct)})`;
+      }
+      const cell = el('div', {class:'range-cell', style:`background:${bg};`, title}, [key]);
+      cell.addEventListener('mouseenter', ()=>{ hoverInfo.textContent = title; });
+      grid.appendChild(cell);
+    }
+  }
+  wrap.appendChild(grid);
+
+  if(st.mode === 'strength'){
+    legend.appendChild(el('span', {}, [el('span',{class:'legend-swatch', style:'background:var(--seq-700);'}), '最強']));
+    legend.appendChild(el('span', {}, [el('span',{class:'legend-swatch', style:'background:var(--seq-400);'}), '中間']));
+    legend.appendChild(el('span', {}, [el('span',{class:'legend-swatch', style:'background:var(--seq-100);'}), '最弱']));
+  } else {
+    ['fold','call','3bet','raise','push'].forEach(a=>{
+      const c = actionColor(a);
+      legend.appendChild(el('span', {}, [el('span',{class:'legend-swatch', style:`background:${c.bg};`}), c.label]));
+    });
+  }
+}
+
+/* ============================================================
+   TAB 4: ポストフロップ練習
+   ============================================================ */
+let pf = null; // active hand state
+
+function renderPostflopTab(){
+  const panel = $('#panel-postflop');
+  panel.innerHTML = '';
+
+  const settingsCard = el('div', {class:'card'});
+  settingsCard.appendChild(el('h2', {}, ['ポストフロップ練習：設定']));
+  settingsCard.appendChild(el('p', {style:'color:var(--text-secondary);font-size:0.88rem;margin-top:-6px;'}, [
+    '簡易ヒューリスティックモデルによる練習です（本格的なソルバー計算ではありません）。「考え方」の理由も一緒に表示されます。'
+  ]));
+
+  const form = el('div', {class:'grid-form'});
+  const fRole = el('div', {class:'field'});
+  fRole.appendChild(el('label', {}, ['あなたの役割']));
+  const rolePills = el('div', {class:'pill-group'});
+  const roleBtnIP = el('button', {type:'button'}, ['IP：レイザー（相手はチェック）']);
+  const roleBtnOOP = el('button', {type:'button'}, ['OOP：コーラー（相手はベット）']);
+  window.__pfRole = window.__pfRole || 'ip_pfr';
+  function syncRoleButtons(){
+    roleBtnIP.classList.toggle('selected', window.__pfRole==='ip_pfr');
+    roleBtnOOP.classList.toggle('selected', window.__pfRole==='oop_caller');
+  }
+  roleBtnIP.onclick = ()=>{ window.__pfRole='ip_pfr'; syncRoleButtons(); };
+  roleBtnOOP.onclick = ()=>{ window.__pfRole='oop_caller'; syncRoleButtons(); };
+  syncRoleButtons();
+  rolePills.appendChild(roleBtnIP); rolePills.appendChild(roleBtnOOP);
+  fRole.appendChild(rolePills);
+
+  const fSpr = el('div', {class:'field'});
+  fSpr.appendChild(el('label', {}, ['SPR（実効スタック÷ポット）の目安']));
+  const sprPills = el('div', {class:'pill-group'});
+  window.__pfSpr = window.__pfSpr || 4;
+  [{l:'浅い (SPR≈1.5)', v:1.5}, {l:'標準 (SPR≈4)', v:4}, {l:'深い (SPR≈8)', v:8}].forEach(o=>{
+    const b = el('button', {type:'button'}, [o.l]);
+    b.classList.toggle('selected', window.__pfSpr === o.v);
+    b.onclick = ()=>{ window.__pfSpr = o.v; $all('.pill-group button', fSpr).forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); };
+    sprPills.appendChild(b);
+  });
+  fSpr.appendChild(sprPills);
+
+  form.appendChild(fRole); form.appendChild(fSpr);
+  settingsCard.appendChild(form);
+  settingsCard.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startPostflopHand}, ['新しいハンドを配る'])
+  ]));
+  panel.appendChild(settingsCard);
+
+  const scoreCard = el('div', {class:'card', id:'pfScoreCard'});
+  panel.appendChild(scoreCard);
+  renderPfScore();
+
+  const handCard = el('div', {class:'card', id:'pfHandCard'});
+  handCard.style.display = 'none';
+  panel.appendChild(handCard);
+}
+
+let pfScore = {correct:0, total:0};
+function renderPfScore(){
+  const c = $('#pfScoreCard');
+  if(!c) return;
+  c.innerHTML = '';
+  const acc = pfScore.total ? Math.round(pfScore.correct/pfScore.total*100) : 0;
+  const strip = el('div', {class:'score-strip'});
+  strip.appendChild(el('span', {}, ['ストリート正解数: ', el('b', {}, [`${pfScore.correct} / ${pfScore.total}`])]));
+  strip.appendChild(el('span', {}, ['正答率: ', el('b', {}, [`${acc}%`])]));
+  c.appendChild(strip);
+}
+
+function startPostflopHand(){
+  const deck = shuffle(freshDeck());
+  const hole = [deck.pop(), deck.pop()];
+  const board = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()]; // flop(3)+turn+river ready
+  const role = window.__pfRole || 'ip_pfr';
+  const spr = window.__pfSpr || 4;
+  const pot = 5.5; // bb, standard opened+called pot reference
+  pf = {
+    hole, board, role, streetIdx: 0, // 0=flop,1=turn,2=river
+    pot, effStack: pot * spr, history: [], done:false
+  };
+  $('#pfHandCard').style.display = '';
+  renderPostflopStreet();
+}
+
+function currentBoardCards(){
+  const n = pf.streetIdx === 0 ? 3 : pf.streetIdx === 1 ? 4 : 5;
+  return pf.board.slice(0, n);
+}
+
+function renderPostflopStreet(){
+  const card = $('#pfHandCard');
+  card.innerHTML = '';
+
+  const streetNames = ['フロップ','ターン','リバー'];
+  card.appendChild(el('h2', {}, [`${streetNames[pf.streetIdx]}`]));
+
+  const dots = el('div', {class:'progress-dots'});
+  for(let i=0;i<3;i++){
+    const cls = i < pf.streetIdx ? 'done' : (i === pf.streetIdx ? 'current' : '');
+    dots.appendChild(el('span', {class:cls}));
+  }
+  card.appendChild(dots);
+
+  card.appendChild(el('h3', {}, ['あなたのハンド']));
+  const holeRow = el('div', {class:'cards-row'});
+  pf.hole.forEach(c => holeRow.appendChild(renderPlayingCard(c)));
+  card.appendChild(holeRow);
+
+  card.appendChild(el('h3', {style:'margin-top:12px;'}, ['ボード']));
+  const boardRow = el('div', {class:'cards-row'});
+  currentBoardCards().forEach(c => boardRow.appendChild(renderPlayingCard(c)));
+  card.appendChild(boardRow);
+
+  const texture = analyzeBoard(currentBoardCards().slice(0,3));
+  const textureClass = texture.label==='ドライ' ? 'texture-dry' : (texture.label==='ミドル'?'texture-mid':'texture-wet');
+  const meta = el('div', {class:'meta-row', style:'margin-top:10px;'});
+  meta.appendChild(el('span', {class:'texture-badge '+textureClass}, ['ボード: '+texture.label]));
+  meta.appendChild(el('span', {}, ['ポット: ', el('b', {}, [pf.pot.toFixed(1)+' BB'])]));
+  meta.appendChild(el('span', {}, ['実効スタック: ', el('b', {}, [pf.effStack.toFixed(1)+' BB'])]));
+  meta.appendChild(el('span', {}, ['SPR: ', el('b', {}, [(pf.effStack/pf.pot).toFixed(1)])]));
+  meta.appendChild(el('span', {}, ['役割: ', el('b', {}, [pf.role==='ip_pfr' ? 'IP（レイザー）' : 'OOP（コーラー）'])]));
+  card.appendChild(meta);
+
+  const strength = classifyHandStrength(pf.hole, currentBoardCards());
+  const spr = pf.effStack / pf.pot;
+  const facingBet = pf.role === 'oop_caller';
+  const rec = recommendPostflop({
+    facingBet, isAggressor: pf.role === 'ip_pfr', heroInPosition: pf.role === 'ip_pfr',
+    street: streetNames[pf.streetIdx], strength, texture, spr
+  });
+  pf.currentRec = rec;
+
+  let villainBetPct = null;
+  if(pf.role === 'oop_caller'){
+    villainBetPct = [33,66,100][Math.floor(Math.random()*3)];
+    card.appendChild(el('p', {style:'margin-top:12px;font-weight:600;'},
+      [`相手がポットの${villainBetPct}%をベットしてきました。あなたの番です。`]));
+  } else {
+    card.appendChild(el('p', {style:'margin-top:12px;font-weight:600;'},
+      ['相手はチェックしてきました。あなたの番です。']));
+  }
+
+  const btnRow = el('div', {class:'btn-row'});
+  const options = pf.role === 'ip_pfr'
+    ? [{action:'check', label:'チェック'}, {action:'bet', label:'ベット（33%〜100%）'}]
+    : [{action:'fold', label:'フォールド'}, {action:'call', label:'コール'}, {action:'raise', label:'レイズ'}];
+  options.forEach(o => {
+    btnRow.appendChild(el('button', {class:'btn secondary', onclick:()=>answerPostflop(o.action, villainBetPct)}, [o.label]));
+  });
+  card.appendChild(btnRow);
+  card.appendChild(el('div', {id:'pfFeedback'}));
+}
+
+function answerPostflop(chosenAction, villainBetPct){
+  const rec = pf.currentRec;
+  const correct = chosenAction === rec.action;
+  pfScore.total++;
+  if(correct) pfScore.correct++;
+  renderPfScore();
+
+  pf.history.push({street: pf.streetIdx, chosenAction, correctAction: rec.action, correct});
+
+  const fb = $('#pfFeedback');
+  fb.innerHTML = '';
+  const box = el('div', {class:'result-box', style:`background:${cssAlpha(correct?"var(--good)":"var(--critical)",0.10)};border-color:${correct?"var(--good)":"var(--critical)"};`});
+  box.appendChild(el('div', {class:'result-headline'}, [
+    el('span', {class:'badge ' + (correct?'good':'critical')}, [correct ? '方向性は一致！' : '推奨と不一致']),
+    el('span', {}, [`推奨: `]),
+    el('span', {class:'badge neutral'}, [actionLabelPostflop(rec.action) + (rec.sizing ? `（${rec.sizing}）` : '')])
+  ]));
+  const list = el('ul', {class:'reasons'});
+  rec.reasons.forEach(r => list.appendChild(el('li', {}, [r])));
+  box.appendChild(list);
+  fb.appendChild(box);
+
+  const isLast = pf.streetIdx >= 2;
+  fb.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: ()=>{
+      if(isLast){ finishPostflopHand(); } else { pf.streetIdx++; renderPostflopStreet(); }
+    }}, [isLast ? 'ハンドを終了して結果を見る' : '次のストリートへ →'])
+  ]));
+}
+
+function actionLabelPostflop(a){
+  const map = {check:'チェック', bet:'ベット', fold:'フォールド', call:'コール', raise:'レイズ'};
+  return map[a] || a;
+}
+
+function finishPostflopHand(){
+  const card = $('#pfHandCard');
+  card.innerHTML = '';
+  card.appendChild(el('h2', {}, ['このハンドのまとめ']));
+
+  const boardRow = el('div', {class:'cards-row'});
+  pf.hole.forEach(c => boardRow.appendChild(renderPlayingCard(c)));
+  boardRow.appendChild(el('span', {style:'width:8px;'}));
+  pf.board.forEach(c => boardRow.appendChild(renderPlayingCard(c)));
+  card.appendChild(boardRow);
+
+  const streetNames = ['フロップ','ターン','リバー'];
+  const list = el('ul', {class:'reasons'});
+  pf.history.forEach(h => {
+    list.appendChild(el('li', {}, [
+      `${streetNames[h.street]}: あなた「${actionLabelPostflop(h.chosenAction)}」 / 推奨「${actionLabelPostflop(h.correctAction)}」 `,
+      el('span', {class:'badge ' + (h.correct?'good':'critical')}, [h.correct?'一致':'不一致'])
+    ]));
+  });
+  card.appendChild(list);
+
+  const correctCount = pf.history.filter(h=>h.correct).length;
+  card.appendChild(el('p', {style:'font-weight:700;margin-top:10px;'}, [`このハンドでの一致: ${correctCount} / ${pf.history.length}`]));
+
+  card.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startPostflopHand}, ['次のハンドへ →'])
+  ]));
+}
+
+/* ============================================================
+   TAB 5: 実践ハンド練習（プリフロップ→フロップ→ターン→リバーを通しで）
+   ============================================================
+   This ties the preflop decision and the postflop streets into ONE
+   continuous hand, with a plausible (simplified, non-solver) opponent:
+   e.g. "あなた(BB)がAKsでレイズ、COがコールしてヘッズアップ、
+   フロップは○○○" -> hero keeps making decisions street by street. */
+let playSettings = {includeICM:true, handSampling:'balanced'};
+let playScore = {preflopCorrect:0, preflopTotal:0, postflopCorrect:0, postflopTotal:0, handsPlayed:0};
+let play = null;
+
+function renderPlayTab(){
+  const panel = $('#panel-play');
+  panel.innerHTML = '';
+
+  const settingsCard = el('div', {class:'card'});
+  settingsCard.appendChild(el('h2', {}, ['実践ハンド練習：設定']));
+  settingsCard.appendChild(el('p', {style:'color:var(--text-secondary);font-size:0.88rem;margin-top:-6px;'}, [
+    'プリフロップのアクションから、実際にコールされた場合はフロップ・ターン・リバーまで続けて判断する「1ハンド通し」の練習です。相手の継続/フォールドや、チェック/ベットはランダムなシミュレーションです。'
+  ]));
+  const form = el('div', {class:'grid-form'});
+
+  const icmField = el('div', {class:'field'});
+  icmField.appendChild(el('label', {}, ['ICM状況（バブル等）をランダムに含める']));
+  const icmPills = el('div', {class:'pill-group'});
+  const icmBtn = el('button', {type:'button'}, [playSettings.includeICM ? 'ON' : 'OFF']);
+  icmBtn.classList.toggle('selected', playSettings.includeICM);
+  icmBtn.onclick = ()=>{ playSettings.includeICM = !playSettings.includeICM; icmBtn.textContent = playSettings.includeICM?'ON':'OFF'; icmBtn.classList.toggle('selected', playSettings.includeICM); };
+  icmPills.appendChild(icmBtn);
+  icmField.appendChild(icmPills);
+
+  const samplingField = el('div', {class:'field'});
+  samplingField.appendChild(el('label', {}, ['出題ハンドの分布']));
+  const samplingPills = el('div', {class:'pill-group'});
+  const bBalanced = el('button', {type:'button'}, ['バランス型（推奨）']);
+  const bRealistic = el('button', {type:'button'}, ['リアル頻度']);
+  function syncSamplingButtons(){
+    bBalanced.classList.toggle('selected', playSettings.handSampling === 'balanced');
+    bRealistic.classList.toggle('selected', playSettings.handSampling === 'realistic');
+  }
+  bBalanced.onclick = ()=>{ playSettings.handSampling='balanced'; syncSamplingButtons(); };
+  bRealistic.onclick = ()=>{ playSettings.handSampling='realistic'; syncSamplingButtons(); };
+  syncSamplingButtons();
+  samplingPills.appendChild(bBalanced); samplingPills.appendChild(bRealistic);
+  samplingField.appendChild(samplingPills);
+
+  form.appendChild(icmField); form.appendChild(samplingField);
+  settingsCard.appendChild(form);
+  settingsCard.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startPlayHand}, ['新しいハンドを配る'])
+  ]));
+  panel.appendChild(settingsCard);
+
+  const scoreCard = el('div', {class:'card', id:'playScoreCard'});
+  panel.appendChild(scoreCard);
+  renderPlayScore();
+
+  const handCard = el('div', {class:'card', id:'playHandCard'});
+  handCard.style.display = 'none';
+  panel.appendChild(handCard);
+}
+
+function renderPlayScore(){
+  const c = $('#playScoreCard');
+  if(!c) return;
+  c.innerHTML = '';
+  const preAcc = playScore.preflopTotal ? Math.round(playScore.preflopCorrect/playScore.preflopTotal*100) : 0;
+  const postAcc = playScore.postflopTotal ? Math.round(playScore.postflopCorrect/playScore.postflopTotal*100) : 0;
+  const strip = el('div', {class:'score-strip'});
+  strip.appendChild(el('span', {}, ['プレイしたハンド数: ', el('b', {}, [`${playScore.handsPlayed}`])]));
+  strip.appendChild(el('span', {}, ['プリフロップ正答率: ', el('b', {}, [`${preAcc}% (${playScore.preflopCorrect}/${playScore.preflopTotal})`])]));
+  strip.appendChild(el('span', {}, ['ポストフロップ正答率: ', el('b', {}, [`${postAcc}% (${playScore.postflopCorrect}/${playScore.postflopTotal})`])]));
+  c.appendChild(strip);
+}
+
+function estimatePreflopPotAndStack(stackBB, chosenAction){
+  let invested = 2.2;
+  if(chosenAction === '3bet') invested = 7.5;
+  const pot = invested * 2 + 1.5;
+  const effStack = Math.max(3, stackBB - invested);
+  return {pot, effStack};
+}
+
+function startPlayHand(){
+  const scenario = generatePreflopScenario({
+    includeShort:true, includeMid:true, includeFacing:true,
+    includeICM: playSettings.includeICM, handSampling: playSettings.handSampling
+  });
+  play = {scenario, phase:'preflop'};
+  $('#playHandCard').style.display = '';
+  renderPlayPreflop();
+}
+
+function renderPlayPreflop(){
+  const card = $('#playHandCard');
+  card.innerHTML = '';
+  const scenario = play.scenario;
+
+  card.appendChild(el('h2', {}, ['プリフロップ：あなたのアクションは？']));
+
+  const cardsRow = el('div', {class:'cards-row'});
+  handDisplayCards(scenario.handKey).forEach(cd => cardsRow.appendChild(renderPlayingCard(cd)));
+  cardsRow.appendChild(el('div', {class:'hand-key-display'}, [scenario.handKey]));
+  card.appendChild(cardsRow);
+
+  const meta = el('div', {class:'meta-row'});
+  meta.appendChild(el('span', {}, ['ポジション: ', el('b', {}, [POSITION_LABELS[scenario.position]])]));
+  meta.appendChild(el('span', {}, ['スタック: ', el('b', {}, [scenario.stackBB + 'BB']) ]));
+  meta.appendChild(el('span', {}, ['ICM: ', el('b', {}, [ICM_SITUATIONS[scenario.situation].label])]));
+  if(scenario.situation !== 'normal'){
+    meta.appendChild(el('span', {}, ['自分のスタック: ', el('b', {}, [RELATIVE_STACK[scenario.relativeStack].label])]));
+  }
+  card.appendChild(meta);
+
+  const situationText = scenario.facing === 'open'
+    ? '誰もレイズしておらず、あなたが最初にアクションします。'
+    : `${POSITION_LABELS[scenario.raiserPosition]}がオープンレイズしました。あなたの番です。`;
+  card.appendChild(el('p', {style:'margin-top:10px;font-weight:600;'}, [situationText]));
+
+  const isShort = scenario.stackBB <= 20;
+  const actions = [];
+  if(scenario.facing === 'open'){
+    actions.push(isShort ? {action:'push', label:'オールインプッシュ'} : {action:'raise', label:'オープンレイズ'});
+    actions.push({action:'fold', label:'フォールド'});
+  } else {
+    if(isShort){
+      actions.push({action:'call', label:'コール（実質オールイン）'});
+    } else {
+      actions.push({action:'3bet', label: scenario.facing === 'vs3bet' ? '4ベット' : '3ベット'});
+      actions.push({action:'call', label:'コール'});
+    }
+    actions.push({action:'fold', label:'フォールド'});
+  }
+
+  const btnRow = el('div', {class:'btn-row'});
+  actions.forEach(a => {
+    const c = actionColor(a.action);
+    btnRow.appendChild(el('button', {class:'btn', style:`background:${c.bg};color:${c.fg};`,
+      onclick: () => answerPlayPreflop(a.action)}, [a.label]));
+  });
+  card.appendChild(btnRow);
+  card.appendChild(el('div', {id:'playFeedback'}));
+}
+
+function answerPlayPreflop(chosenAction){
+  const scenario = play.scenario;
+  const res = recommendPreflop(scenario);
+  const correct = isPreflopCorrect(chosenAction, res);
+  playScore.preflopTotal++;
+  if(correct) playScore.preflopCorrect++;
+  renderPlayScore();
+
+  const outcome = resolvePreflopOutcome({scenario, chosenAction});
+  play.preflopChoice = chosenAction;
+  play.preflopCorrect = correct;
+  play.preflopRes = res;
+  play.outcome = outcome;
+  play.streetHistory = [];
+
+  const fb = $('#playFeedback');
+  fb.innerHTML = '';
+  fb.appendChild(buildPreflopFeedbackBox(res, correct));
+
+  const narrative = el('p', {style:'margin-top:12px;font-weight:600;'}, [preflopOutcomeNarrative(scenario, chosenAction, outcome)]);
+  fb.appendChild(narrative);
+
+  const willContinue = outcome.continues;
+  fb.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: ()=>{
+      if(willContinue) startPlayPostflop(); else finishPlayHand();
+    }}, [willContinue ? 'フロップへ進む →' : '結果を見る →'])
+  ]));
+}
+
+function preflopOutcomeNarrative(scenario, chosenAction, outcome){
+  const villainLabel = outcome.villainPosition ? POSITION_LABELS[outcome.villainPosition] : null;
+  switch(outcome.endReason){
+    case 'hero_fold': return 'フォールドしました。このハンドはここで終了です。';
+    case 'everyone_folds': return '他のプレイヤーは全員フォールドしました。プリフロップのみで勝利です（これ以上のアクションはありません）。';
+    case 'villain_folds_to_3bet': return `${villainLabel}は3ベットにフォールドしました。プリフロップのみで勝利です（これ以上のアクションはありません）。`;
+    case 'called_allin': return `${villainLabel}がコールし、オールインとなりました。実効スタックが浅いため、これ以降のアクションはありません。`;
+    case 'called_allin_preflop': return `${villainLabel}のオープンに対してコール＝実質オールインとなりました。これ以降のアクションはありません。`;
+    default: return `${villainLabel}がコールしました。ヘッズアップでフロップに進みます。`;
+  }
+}
+
+function startPlayPostflop(){
+  const scenario = play.scenario;
+  const hole = handDisplayCards(scenario.handKey);
+  let deck = shuffle(freshDeck().filter(c => !hole.some(h => h.rank === c.rank && h.suit === c.suit)));
+  const board = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+  const {pot, effStack} = estimatePreflopPotAndStack(scenario.stackBB, play.preflopChoice);
+  const villainPosition = play.outcome.villainPosition;
+  play.pf = {
+    hole, board, streetIdx: 0, pot, effStack,
+    isAggressor: play.outcome.isAggressor,
+    heroInPosition: isInPositionPostflop(scenario.position, villainPosition),
+    villainPosition, history: []
+  };
+  renderPlayPostflopStreet();
+}
+
+function playCurrentBoardCards(){
+  const n = play.pf.streetIdx === 0 ? 3 : play.pf.streetIdx === 1 ? 4 : 5;
+  return play.pf.board.slice(0, n);
+}
+
+function renderPlayPostflopStreet(){
+  const card = $('#playHandCard');
+  card.innerHTML = '';
+  const pf = play.pf;
+  const streetNames = ['フロップ','ターン','リバー'];
+
+  card.appendChild(el('h2', {}, [streetNames[pf.streetIdx]]));
+  const dots = el('div', {class:'progress-dots'});
+  for(let i=0;i<3;i++){
+    const cls = i < pf.streetIdx ? 'done' : (i === pf.streetIdx ? 'current' : '');
+    dots.appendChild(el('span', {class:cls}));
+  }
+  card.appendChild(dots);
+
+  card.appendChild(el('h3', {}, ['あなたのハンド']));
+  const holeRow = el('div', {class:'cards-row'});
+  pf.hole.forEach(c => holeRow.appendChild(renderPlayingCard(c)));
+  card.appendChild(holeRow);
+
+  card.appendChild(el('h3', {style:'margin-top:12px;'}, ['ボード']));
+  const boardRow = el('div', {class:'cards-row'});
+  playCurrentBoardCards().forEach(c => boardRow.appendChild(renderPlayingCard(c)));
+  card.appendChild(boardRow);
+
+  const texture = analyzeBoard(playCurrentBoardCards().slice(0,3));
+  const textureClass = texture.label==='ドライ' ? 'texture-dry' : (texture.label==='ミドル'?'texture-mid':'texture-wet');
+  const spr = pf.effStack / pf.pot;
+  const meta = el('div', {class:'meta-row', style:'margin-top:10px;'});
+  meta.appendChild(el('span', {class:'texture-badge '+textureClass}, ['ボード: '+texture.label]));
+  meta.appendChild(el('span', {}, ['ポット: ', el('b', {}, [pf.pot.toFixed(1)+' BB'])]));
+  meta.appendChild(el('span', {}, ['実効スタック: ', el('b', {}, [pf.effStack.toFixed(1)+' BB'])]));
+  meta.appendChild(el('span', {}, ['SPR: ', el('b', {}, [spr.toFixed(1)])]));
+  meta.appendChild(el('span', {}, ['あなた: ', el('b', {}, [
+    (pf.isAggressor ? 'アグレッサー' : 'コーラー') + '・' + (pf.heroInPosition ? 'IP' : 'OOP')
+  ])]));
+  card.appendChild(meta);
+
+  const strength = classifyHandStrength(pf.hole, playCurrentBoardCards());
+  let facingBet = false, villainBetPct = null, narrativeText;
+  if(pf.heroInPosition){
+    const vAction = simulateVillainPostflopAction(!pf.isAggressor, texture);
+    if(vAction.type === 'check'){
+      facingBet = false; narrativeText = '相手はチェックしてきました。あなたの番です。';
+    } else {
+      facingBet = true; villainBetPct = vAction.pct;
+      narrativeText = `相手がポットの${vAction.pct}%をベットしてきました。あなたの番です。`;
+    }
+  } else {
+    facingBet = false;
+    narrativeText = 'アウトオブポジションのあなたが先に動きます（相手はまだ何もしていません）。';
+  }
+
+  const rec = recommendPostflop({facingBet, isAggressor: pf.isAggressor, heroInPosition: pf.heroInPosition,
+    street: streetNames[pf.streetIdx], strength, texture, spr});
+  pf.currentRec = rec;
+
+  card.appendChild(el('p', {style:'margin-top:12px;font-weight:600;'}, [narrativeText]));
+
+  const btnRow = el('div', {class:'btn-row'});
+  const options = facingBet
+    ? [{action:'fold', label:'フォールド'}, {action:'call', label:'コール'}, {action:'raise', label:'レイズ'}]
+    : [{action:'check', label:'チェック'}, {action:'bet', label:'ベット（33%〜100%）'}];
+  options.forEach(o => {
+    btnRow.appendChild(el('button', {class:'btn secondary', onclick:()=>answerPlayPostflop(o.action, facingBet)}, [o.label]));
+  });
+  card.appendChild(btnRow);
+  card.appendChild(el('div', {id:'playPfFeedback'}));
+}
+
+function answerPlayPostflop(chosenAction, facingBet){
+  const pf = play.pf;
+  const rec = pf.currentRec;
+  const correct = chosenAction === rec.action;
+  playScore.postflopTotal++;
+  if(correct) playScore.postflopCorrect++;
+  renderPlayScore();
+
+  pf.history.push({street: pf.streetIdx, chosenAction, correctAction: rec.action, correct});
+
+  const fb = $('#playPfFeedback');
+  fb.innerHTML = '';
+  const box = el('div', {class:'result-box', style:`background:${cssAlpha(correct?"var(--good)":"var(--critical)",0.10)};border-color:${correct?"var(--good)":"var(--critical)"};`});
+  box.appendChild(el('div', {class:'result-headline'}, [
+    el('span', {class:'badge ' + (correct?'good':'critical')}, [correct ? '方向性は一致！' : '推奨と不一致']),
+    el('span', {}, [`推奨: `]),
+    el('span', {class:'badge neutral'}, [actionLabelPostflop(rec.action) + (rec.sizing ? `（${rec.sizing}）` : '')])
+  ]));
+  const list = el('ul', {class:'reasons'});
+  rec.reasons.forEach(r => list.appendChild(el('li', {}, [r])));
+  box.appendChild(list);
+  fb.appendChild(box);
+
+  const heroFolded = facingBet && chosenAction === 'fold';
+  const isLastStreet = pf.streetIdx >= 2;
+  const ended = heroFolded || isLastStreet;
+  fb.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: ()=>{
+      if(ended){ finishPlayHand(); } else { pf.streetIdx++; renderPlayPostflopStreet(); }
+    }}, [ended ? '結果を見る →' : '次のストリートへ →'])
+  ]));
+}
+
+function finishPlayHand(){
+  playScore.handsPlayed++;
+  renderPlayScore();
+
+  const card = $('#playHandCard');
+  card.innerHTML = '';
+  card.appendChild(el('h2', {}, ['このハンドのまとめ']));
+
+  const scenario = play.scenario;
+  const summaryRow = el('div', {class:'cards-row'});
+  if(play.pf){
+    play.pf.hole.forEach(c => summaryRow.appendChild(renderPlayingCard(c)));
+    summaryRow.appendChild(el('span', {style:'width:8px;'}));
+    playCurrentBoardCards().forEach(c => summaryRow.appendChild(renderPlayingCard(c)));
+  } else {
+    handDisplayCards(scenario.handKey).forEach(cd => summaryRow.appendChild(renderPlayingCard(cd)));
+  }
+  card.appendChild(summaryRow);
+
+  const list = el('ul', {class:'reasons'});
+  list.appendChild(el('li', {}, [
+    `プリフロップ（${POSITION_LABELS[scenario.position]}）: あなた「${actionColor(play.preflopChoice).label}」 / 推奨「${play.preflopRes.chosen.label}」 `,
+    el('span', {class:'badge ' + (play.preflopCorrect?'good':'critical')}, [play.preflopCorrect?'一致':'不一致'])
+  ]));
+  const streetNames = ['フロップ','ターン','リバー'];
+  if(play.pf){
+    play.pf.history.forEach(h => {
+      list.appendChild(el('li', {}, [
+        `${streetNames[h.street]}: あなた「${actionLabelPostflop(h.chosenAction)}」 / 推奨「${actionLabelPostflop(h.correctAction)}」 `,
+        el('span', {class:'badge ' + (h.correct?'good':'critical')}, [h.correct?'一致':'不一致'])
+      ]));
+    });
+  }
+  card.appendChild(list);
+
+  card.appendChild(el('div', {class:'btn-row'}, [
+    el('button', {class:'btn', onclick: startPlayHand}, ['次のハンドへ →'])
+  ]));
+}
+
+/* ============================================================
+   TAB 6: 使い方・注意点
+   ============================================================ */
+function renderHelpTab(){
+  const panel = $('#panel-help');
+  panel.innerHTML = '';
+  const card = el('div', {class:'card'});
+  card.innerHTML = `
+    <h2>使い方・このツールについて</h2>
+    <div class="help-section">
+      <h3>① 診断シミュレーター</h3>
+      <p>ハンド・ポジション・スタック・ICM状況（バブルや最終テーブルなど）を自分で設定し、その場での推奨アクションと理由をすぐ確認できます。「AKs・残り1人で入賞確定・スタックはミドル・BTNから参加」のような具体的なシチュエーションの検討に使ってください。</p>
+    </div>
+    <div class="help-section">
+      <h3>② プリフロップ練習</h3>
+      <p>ランダムに配られたハンドとシチュエーションに対してアクションを選び、正誤とその理由をその場でフィードバックします。連続正解数や正答率も記録されます。</p>
+    </div>
+    <div class="help-section">
+      <h3>③ レンジ表</h3>
+      <p>ヨコサワレンジ表のような「色で覚える」一覧表です。純粋なハンド強度のヒートマップ表示と、指定した状況下での推奨アクション表示（フォールド/コール/レイズ/プッシュなど）を切り替えられます。</p>
+    </div>
+    <div class="help-section">
+      <h3>④ ポストフロップ練習</h3>
+      <p>役割（IPのレイザー／OOPのコーラー）を固定して、フロップ→ターン→リバーの3ストリートを繰り返し練習するモードです。特定の局面パターン（例：チェックされた時のCベット判断）を集中的に反復したいときに使ってください。</p>
+    </div>
+    <div class="help-section">
+      <h3>⑤ 実践ハンド練習</h3>
+      <p>プリフロップのアクションから、実際にコールされた場合はそのままフロップ・ターン・リバーまで続けて判断する「1ハンド通し」の練習です。「自分（BB）がAKsでレイズ、COがコールしてヘッズアップ、フロップは○○○」のように、ハンドの流れを体験しながら各ストリートの正解と考え方を確認できます。相手が続行するか降りるか、チェックしてくるかベットしてくるかは簡易的な確率でランダムに決まります（本物の相手のレンジ戦略の再現ではありません）。</p>
+    </div>
+    <div class="help-section">
+      <h3>出題ハンドの分布について</h3>
+      <p>プリフロップ練習と実践ハンド練習には「出題ハンドの分布」設定があります。実際のポーカーでは配られるハンドの大半が弱いハンドのため、配布頻度どおりに出題すると体感で7割以上が「フォールドが正解」の問題になってしまい、際どい判断を練習する機会が減ってしまいます。デフォルトの「バランス型」は、際どい判断が生まれやすい上位40%程度のハンドを多めに出題しつつ、素直なフォールドの練習にもなるよう本来の頻度のハンドも混ぜる調整をしています（シミュレーションで確認済み：配布頻度どおりだとフォールド率約77%、バランス型では約47%）。</p>
+    </div>
+    <div class="help-section">
+      <h3>用語ミニ解説</h3>
+      <p><b>ICM（インディペンデント・チップ・モデル）</b>：トーナメントでチップの価値が賞金と比例しないことを踏まえた期待値モデル。バブルや最終テーブルではチップEVだけでなく「生存すること」自体に価値が生まれます。</p>
+      <p><b>SPR（Stack to Pot Ratio）</b>：実効スタックをポットサイズで割った値。低いほどコミットしやすく、高いほど慎重なプレイが必要になります。</p>
+      <p><b>レンジ・ナッツアドバンテージ</b>：プリフロップレイザー側が特定のボードで相対的に強いハンドを多く持っている状態。ドライなボードほどこの差が大きく出やすいです。</p>
+    </div>
+  `;
+  panel.appendChild(card);
+
+  const disclaimer = el('footer', {class:'disclaimer'});
+  disclaimer.innerHTML = `
+    <b>免責事項・モデルの限界について：</b>
+    本ツールはBill Chenのポイントカウント式ハンド評価と、ポジション別レンジの簡易しきい値、及びICM局面に応じたルールベースの調整（バブル・最終テーブル等でしきい値を増減させる簡易モデル）を組み合わせた<b>学習用の簡易ヒューリスティックツール</b>です。
+    実際のGTOソルバー（GTO Wizard等）による厳密な均衡計算や、正式なICM計算（Nash均衡プッシュ/フォールド表など）とは異なり、近似・簡略化された判断ロジックです。
+    ポストフロップ練習も、ボードテクスチャとハンド分類に基づく一般的なセオリーをルール化したもので、実際の相手のレンジやブロッカー効果、正確な頻度戦略までは再現していません。
+    実戦の意思決定や本格的な学習には、実際のソルバーやICM計算ツール、コーチングと併用することを推奨します。あくまで「考え方の型」を練習するためのトレーニング教材としてご利用ください。
+  `;
+  panel.appendChild(disclaimer);
+}
+
+/* ============================================================
+   Tabs & theme & init
+   ============================================================ */
+function switchTab(name){
+  $all('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $all('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+}
+
+function initTabs(){
+  $all('nav.tabs button').forEach(b => {
+    b.addEventListener('click', () => switchTab(b.dataset.tab));
+  });
+}
+
+function initTheme(){
+  const btn = $('#themeToggle');
+  let mode = 'auto';
+  btn.addEventListener('click', () => {
+    if(mode === 'auto'){
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      mode = prefersDark ? 'light' : 'dark';
+    } else if(mode === 'light'){
+      mode = 'dark';
+    } else {
+      mode = 'light';
+    }
+    document.documentElement.setAttribute('data-theme', mode);
+  });
+}
+
+function init(){
+  initTabs();
+  initTheme();
+  renderDiagnoseTab();
+  renderPreflopQuizTab();
+  renderRangeChartTab();
+  renderPostflopTab();
+  renderPlayTab();
+  renderHelpTab();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
